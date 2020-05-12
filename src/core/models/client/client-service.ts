@@ -22,9 +22,7 @@ export default class ClientService implements ClientServiceInterface {
     public async create(username: string, password: string): Promise<Client> {
         const clientId = uuid();
         const client: Client = new Client({ username, password, clientId });
-        const done = await this.database
-            .set(Client.COLLECTIONSTRING, clientId, client)
-            .catch(error => console.log('error thrown in create', error));
+        const done = await this.database.set(Client.COLLECTIONSTRING, clientId, client);
         if (done) {
             this.clientCollection.set(clientId, client);
         }
@@ -51,12 +49,10 @@ export default class ClientService implements ClientServiceInterface {
     }
 
     private async getAllClientsFromDatabase(): Promise<Client[]> {
-        console.log('read from database');
         return await this.database.getAll(Client.COLLECTIONSTRING);
     }
 
     private initClientCollection(clients: Client[]): void {
-        console.log('initClientCollection', clients);
         for (const client of clients) {
             this.clientCollection.set(client.clientId, client);
         }

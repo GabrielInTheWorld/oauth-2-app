@@ -31,7 +31,6 @@ export default class TokenGenerator implements Generator {
         } else {
             throw new Error('Client is not defined.');
         }
-        return {} as Promise<Response>;
     }
 
     public async renewTicket(cookieAsString: string): Promise<Response> {
@@ -43,7 +42,6 @@ export default class TokenGenerator implements Generator {
         } catch {
             throw new Error('Cookie has wrong format.');
         }
-        return {} as Promise<Response>;
     }
 
     public verifyCookie(cookieAsString: string): Cookie {
@@ -67,9 +65,7 @@ export default class TokenGenerator implements Generator {
 
     private async insertMockData(): Promise<void> {
         if (this.clientService) {
-            await this.clientService
-                .create('admin', 'admin')
-                .catch(error => console.log('error in token-generator', error));
+            await this.clientService.create('admin', 'admin');
             await this.clientService.getClientByCredentials('admin', 'admin');
         }
     }
