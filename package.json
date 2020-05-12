@@ -1,0 +1,69 @@
+{
+    "name": "openslides-auth-service",
+    "version": "1.0.0",
+    "description": "Service for OpenSlides which ...",
+    "main": "./build/server.js",
+    "directories": {
+        "test": "auth/tests"
+    },
+    "scripts": {
+        "postinstall": "npm run uptodate",
+        "cleanup": "npm run prettify-write && npm run linter-write",
+        "start": "node build/index.js",
+        "dev": "nodemon src/index.ts --unhandled-rejections=strict",
+        "linter-write": "tslint --fix -c ./tslint.json 'src/**/*{.ts,.tsx}'",
+        "prettify-write": "prettier --config ./.prettierrc --write \"src/**/*{.ts,.js,.json,.css,.scss}\"",
+        "lint-check": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'",
+        "prettify-check": "prettier --config ./.prettierrc --list-different \"src/{app,environments}/**/*{.ts,.js,.json,.css,.scss}\"",
+        "build-ts": "tsc",
+        "build": "tsc",
+        "build-client": "cd client && npm install && npm install --only=dev && npm run build",
+        "prebuild": "echo false > .buildstatus",
+        "postbuild": "echo true > .buildstatus",
+        "test": "jest --passWithNoTests",
+        "uptodate": "npm update && npm update --dev",
+        "make-badges": "node_modules/.bin/jest-badges-readme",
+        "make-readme": "npm t && npm run make-badges"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/OpenSlides/openslides-auth-service.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/OpenSlides/openslides-auth-service/issues"
+    },
+    "homepage": "https://github.com/OpenSlides/openslides-auth-service#readme",
+    "devDependencies": {
+        "@olavoparno/jest-badges-readme": "^1.4.1",
+        "@types/cookie-parser": "^1.4.2",
+        "@types/cors": "^2.8.6",
+        "@types/express": "^4.17.3",
+        "@types/express-jwt": "0.0.42",
+        "@types/jsonwebtoken": "^8.3.8",
+        "@types/node": "^13.11.0",
+        "@types/pouchdb": "^6.4.0",
+        "@types/superagent": "^4.1.7",
+        "husky": "^4.2.5",
+        "nodemon": "^2.0.2",
+        "prettier": "^1.19.1",
+        "reflect-metadata": "^0.1.13",
+        "superagent": "^5.2.2",
+        "ts-node": "^8.8.2",
+        "tslint": "^6.1.1",
+        "typescript": "^3.8.3"
+    },
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "cookie-parser": "^1.4.5",
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
+        "express": "^4.17.1",
+        "express-jwt": "^5.3.1",
+        "jsonwebtoken": "^8.5.1",
+        "pouchdb": "^7.2.1",
+        "pouchdb-adapter-memory": "^7.2.1",
+        "uuidv4": "^6.0.6"
+    }
+}
