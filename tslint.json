@@ -16,7 +16,7 @@
         },
         "directive-class-suffix": true,
         "directive-selector": [true, "attribute", "app", "camelCase"],
-        "forin": true,
+        "forin": false,
         "import-blacklist": [true, "rxjs/Rx"],
         "interface-name": false,
         "interface-over-type-literal": true,

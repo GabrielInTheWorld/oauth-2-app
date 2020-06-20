@@ -4,19 +4,19 @@ import AuthenticationServer from './api/server/authentication-server';
 import BaseServer from './api/interfaces/base-server';
 import { Inject } from './core/modules/decorators';
 
-class Server {
-  private readonly PORT: number = parseInt(process.env.PORT || '', 10) || 8000;
+export class Server {
+  public static readonly PORT: number = parseInt(process.env.PORT || '', 10) || 8000;
 
   public get port(): number {
-    return this.PORT;
+    return Server.PORT;
   }
 
   @Inject(BaseServer)
   private readonly httpServer: AuthenticationServer;
 
   public start(): void {
-    this.httpServer.getServer().listen(this.PORT, () => {
-      console.log(`Server is running on port ${this.PORT}`);
+    this.httpServer.getServer().listen(Server.PORT, () => {
+      console.log(`Server is running on port ${Server.PORT}`);
     });
   }
 }

@@ -1,31 +1,41 @@
+<app-oauth></app-oauth>
+
 <mat-card class="dashboard-card flex-center">
-  <ng-container *ngIf="!hasInitiated">
-    <app-loading-spinner></app-loading-spinner>
-  </ng-container>
-  <ng-container *ngIf="hasInitiated">
-    <app-indicator [color]="color"></app-indicator>
-    <h1 class="underscore">OpenSlides4 Authentifizierungsdienst</h1>
-    <button mat-button (click)="whoAmI()">Who am I</button>
-    <ng-container *ngIf="isAuthenticated()">
-      <button mat-button (click)="logout()">Abmelden</button>
+    <ng-container *ngIf="!hasInitiated">
+        <app-loading-spinner></app-loading-spinner>
     </ng-container>
-    <ng-container *ngIf="!isAuthenticated()">
-      <form [formGroup]="loginForm">
-        <div>
-          <mat-form-field>
-            <input matInput formControlName="username" placeholder="Username" />
-          </mat-form-field>
-        </div>
-        <div>
-          <mat-form-field>
-            <input matInput formControlName="password" placeholder="Password" />
-          </mat-form-field>
-        </div>
-      </form>
-      <div>
-        <button mat-raised-button color="primary" [disabled]="disableConfirmButton" (click)="login()">Okay</button>
-        <button mat-button (click)="clear()">Abbruch</button>
-      </div>
+    <ng-container *ngIf="hasInitiated">
+        <app-indicator [color]="color"></app-indicator>
+        <h1 class="underscore">OpenSlides4 Authentifizierungsdienst</h1>
+        <button mat-button (click)="whoAmI()">Who am I</button>
+        <ng-container *ngIf="isAuthenticated()">
+            <button mat-button (click)="logout()">Abmelden</button>
+        </ng-container>
+        <ng-container *ngIf="!isAuthenticated()">
+            <form [formGroup]="loginForm">
+                <div>
+                    <mat-form-field>
+                        <input matInput formControlName="username" placeholder="Username" />
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field>
+                        <input matInput formControlName="password" placeholder="Password" />
+                    </mat-form-field>
+                </div>
+            </form>
+            <div>
+                <!-- <a mat-raised-button (click)="setAuthenticationProvider('local')" [href]="localOAuthUrl" color="warn">
+                    Zugang zu OpenSlides
+                </a> -->
+                <!-- <a mat-raised-button (click)="setAuthenticationProvider('github')" [href]="githubOAuthUrl" color="warn">
+                    Anmelden mit GitHub
+                </a> -->
+                <button mat-raised-button color="primary" [disabled]="disableConfirmButton" (click)="login()">
+                    Anmelden
+                </button>
+                <button mat-button (click)="clear()">Abbruch</button>
+            </div>
+        </ng-container>
     </ng-container>
-  </ng-container>
 </mat-card>
