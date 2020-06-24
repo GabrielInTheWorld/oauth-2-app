@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseComponent } from 'src/app/core/models/BaseComponent';
+import { BaseComponent } from 'src/app/core/models/base.component';
 import { AuthService, ClientProvider, TokenType } from 'src/app/core/services/auth.service';
 import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
 
@@ -53,7 +53,10 @@ export class OauthComponent extends BaseComponent implements OnInit {
             this.authService.helloApi().then(answer => console.log('answer from api:', answer));
             this.authService
                 .helloOAuth()
-                .then(answer => console.log('answer from oauth 2', answer))
+                .then(answer => {
+                    console.log('answer from oauth 2', answer);
+                    this.helloMessage = answer.message;
+                })
                 .catch(e => console.log('error:', e));
         }
     }

@@ -119,7 +119,7 @@ export class AuthService {
         );
     }
 
-    public helloOAuth(): Promise<void> {
+    public helloOAuth(): Promise<Answer> {
         return this.http.get(
             '/oauth/greet',
             null,

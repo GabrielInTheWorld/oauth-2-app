@@ -1,5 +1,5 @@
-import User from './user';
 import { InjectableClass } from '../../modules/decorators/injectable';
+import User from './user';
 
 export class UserServiceInterface extends InjectableClass {
   public create: (username: string, password: string) => Promise<User>;

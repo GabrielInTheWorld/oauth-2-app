@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { AuthService, ClientProvider } from 'src/app/core/services/auth.service';
-import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
+import { BaseComponent } from 'src/app/core/models/base.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { StorageService } from 'src/app/core/services/storage.service';
-import { BaseComponent } from 'src/app/core/models/BaseComponent';
+import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -25,39 +24,17 @@ export class DashboardComponent extends BaseComponent implements OnInit, OnDestr
         return !this.loginFormHasValues;
     }
 
-    // public get localOAuthUrl(): string {
-    //     // this.clientProvider = ClientProvider.OPENSLIDES;
-    //     // console.log('localOAuthUrl', this.auth.localOAuthUrl);
-    //     return this.auth.openslidesOAuthUrl;
-    // }
-
-    // public get githubOAuthUrl(): string {
-    //     // console.log('githubOAuthUrl', this.auth.githubOAuthUrl);
-    //     // this.clientProvider = ClientProvider.GITHUB;
-    //     // return this.auth.githubOAuthUrl;
-    // }
-
     public loginForm: FormGroup;
 
     private loginFormHasValues = false;
 
     private pHasInitiated: boolean;
 
-    // private subscriptions: Subscription[] = [];
-
-    // private clientProvider: ClientProvider = ClientProvider.CUSTOM;
-
-    public constructor(
-        private readonly auth: AuthService,
-        private readonly fb: FormBuilder,
-        private readonly route: ActivatedRoute,
-        private readonly storage: StorageService
-    ) {
+    public constructor(private readonly auth: AuthService, private readonly fb: FormBuilder) {
         super();
     }
 
     public async ngOnInit(): Promise<void> {
-        await this.getProviderFromStorage();
         this.loginForm = this.fb.group({
             username: 'admin',
             password: 'admin'
@@ -69,16 +46,6 @@ export class DashboardComponent extends BaseComponent implements OnInit, OnDestr
             this.auth.InitiateObservable.subscribe(hasInitiated => (this.pHasInitiated = hasInitiated))
         );
         this.checkLoginForm(this.loginForm.value);
-        // this.subscriptions.push(
-        //     this.route.url.subscribe(urlSegments => console.log('urlSegments', urlSegments)),
-        //     this.route.queryParams.subscribe((queryParams: { state: string; code?: string }) => {
-        //         console.log('queryParams', queryParams);
-        //         console.log('provider', this.clientProvider);
-        //         if (queryParams.code) {
-        //             this.auth.oAuth2Callback(queryParams.code, queryParams.state);
-        //         }
-        //     })
-        // );
     }
 
     public ngOnDestroy(): void {
@@ -112,18 +79,7 @@ export class DashboardComponent extends BaseComponent implements OnInit, OnDestr
         return this.auth.isAuthenticated();
     }
 
-    public setAuthenticationProvider(provider: string): void {
-        // this.clientProvider = provider as ClientProvider;
-        // this.storage.set(this.providerStorageKey, provider);
-    }
-
     private checkLoginForm(value: { username: string; password: string }): void {
         this.loginFormHasValues = !!value.password && !!value.username;
-    }
-
-    private async getProviderFromStorage(): Promise<void> {
-        // const provider = await this.storage.get<ClientProvider>(this.providerStorageKey);
-        // console.log('provider', provider);
-        // this.clientProvider = provider;
     }
 }
