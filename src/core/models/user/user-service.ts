@@ -1,10 +1,10 @@
 import { uuid } from 'uuidv4';
 
-import User from './user';
-import { UserServiceInterface } from './user-service.interface';
 import DatabaseAdapter from '../../../adapter/services/database-adapter';
 import { DatabasePort } from '../../../adapter/interfaces/database-port';
 import { Constructable, Inject } from '../../modules/decorators';
+import User from './user';
+import { UserServiceInterface } from './user-service.interface';
 
 @Constructable(UserServiceInterface)
 export default class UserService implements UserServiceInterface {
@@ -13,49 +13,54 @@ export default class UserService implements UserServiceInterface {
   @Inject(DatabasePort, User)
   private readonly database: DatabaseAdapter;
 
-  private readonly clientCollection: Map<string, User> = new Map();
+  private readonly userCollection: Map<string, User> = new Map();
 
   public constructor() {
     this.mockUserData();
-    this.getAllClientsFromDatabase().then(clients => this.initClientCollection(clients));
+    this.getAllUsersFromDatabase().then(users => this.initUserCollection(users));
   }
 
   public async create(username: string, password: string): Promise<User> {
-    const clientId = uuid();
-    const client: User = new User({ username, password, clientId });
-    const done = await this.database.set(User.COLLECTIONSTRING, clientId, client);
+    const userId = uuid();
+    const user: User = new User({ username, password, userId });
+    const done = await this.database.set(User.COLLECTIONSTRING, userId, user);
     if (done) {
-      this.clientCollection.set(clientId, client);
+      this.userCollection.set(userId, user);
     }
-    return client;
+    return user;
   }
 
   public async getUserByCredentials(username: string, password: string): Promise<User | undefined> {
-    const clients = this.getAllUsers();
-    return clients.find(c => c.username === username && c.password === password);
+    const users = this.getAllUsers();
+    return users.find(c => c.username === username && c.password === password);
   }
 
   public async getUserBySessionId(sessionId: string): Promise<User | undefined> {
-    const clients = this.getAllUsers();
-    return clients.find(c => c.sessionId === sessionId);
+    const users = this.getAllUsers();
+    return users.find(c => c.sessionId === sessionId);
+  }
+
+  public async getUserByUserId(userId: string): Promise<User | undefined> {
+    const users = this.getAllUsers();
+    return users.find(user => user.userId === userId);
   }
 
   public async hasUser(username: string, password: string): Promise<boolean> {
-    const clients = this.getAllUsers();
-    return !!clients.find(client => client.username === username && client.password === password);
+    const users = this.getAllUsers();
+    return !!users.find(user => user.username === username && user.password === password);
   }
 
   public getAllUsers(): User[] {
-    return Array.from(this.clientCollection.values());
+    return Array.from(this.userCollection.values());
   }
 
-  private async getAllClientsFromDatabase(): Promise<User[]> {
+  private async getAllUsersFromDatabase(): Promise<User[]> {
     return await this.database.getAll(User.COLLECTIONSTRING);
   }
 
-  private initClientCollection(clients: User[]): void {
-    for (const client of clients) {
-      this.clientCollection.set(client.clientId, client);
+  private initUserCollection(users: User[]): void {
+    for (const user of users) {
+      this.userCollection.set(user.userId, user);
     }
   }
 

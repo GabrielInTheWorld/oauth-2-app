@@ -7,6 +7,7 @@ import path from 'path';
 import BaseServer from '../interfaces/base-server';
 import { Constructable } from '../../core/modules/decorators';
 import { OAuthRoutes } from '../oauth/oauth-routes';
+import { RouteHandlerInterface } from '../interfaces/route-handler-interface';
 import Routes from '../routes/Routes';
 
 @Constructable(BaseServer)
@@ -69,6 +70,10 @@ export default class AuthenticationServer implements BaseServer {
 
   private initClient(): void {
     this.app.use('/', express.static(path.resolve(this.CLIENT_PATH)));
+    this.app.use('/', express.static(path.resolve(RouteHandlerInterface.VIEWS_PATH)));
+    this.app.set('views', path.resolve(RouteHandlerInterface.VIEWS_PATH));
+    this.app.set('view engine', 'jsx');
+    this.app.engine('jsx', require('express-react-views').createEngine());
   }
 
   private corsFunction(req: express.Request, res: express.Response, next: express.NextFunction): void {

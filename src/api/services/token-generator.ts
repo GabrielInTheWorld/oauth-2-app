@@ -1,14 +1,12 @@
 import cookieParser from 'cookie-parser';
+import cryptoRandomString from 'crypto-random-string';
 import jwt from 'jsonwebtoken';
 import { uuid } from 'uuidv4';
-import cryptoRandomString from 'crypto-random-string';
 
-import User from '../../core/models/user/user';
-import UserService from '../../core/models/user/user-service';
-import { UserServiceInterface } from '../../core/models/user/user-service.interface';
 import { Keys } from '../../config';
 import { Constructable, Inject, InjectService } from '../../core/modules/decorators';
 import { Cookie, Generator, Response } from '../interfaces/generator';
+import User from '../../core/models/user/user';
 
 @Constructable(Generator)
 export default class TokenGenerator implements Generator {
@@ -41,7 +39,7 @@ export default class TokenGenerator implements Generator {
 
   private generateToken(sessionId: string, client: User): string {
     const token = jwt.sign(
-      { username: client.username, expiresIn: '10m', sessionId, clientId: client.clientId },
+      { username: client.username, expiresIn: '10m', sessionId, clientId: client.userId },
       Keys.privateKey(),
       {
         expiresIn: '10m'

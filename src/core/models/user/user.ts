@@ -5,7 +5,7 @@ export default class User extends BaseModel implements IUser {
 
   public readonly username: string;
   public readonly password: string;
-  public readonly clientId: string;
+  public readonly userId: string;
   private pSessionId: string;
 
   public get sessionId(): string {

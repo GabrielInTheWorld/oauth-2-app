@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { sha256 } from 'sha.js';
 import * as url from 'url';
-import { uuid } from 'uuidv4';
 
 import { HttpService, Answer, HTTPMethod } from './http.service';
 import { StorageService } from './storage.service';
@@ -63,14 +62,6 @@ export class AuthService {
         return this.tokenSubject.asObservable();
     }
 
-    // public get localOAuthUrl(): string {
-    //     return this.buildURL(this.localServer.authorizePath, this.getOptionsForAuthorizing(this.localClient));
-    // }
-
-    // public get githubOAuthUrl(): string {
-    //     return this.buildURL(this.githubServer.authorizePath, this.getOptionsForAuthorizing(this.githubClient));
-    // }
-
     public get openslidesOAuthUrl(): string {
         return this.buildURL(this.openslidesServer.authorizePath, this.getOptionsForAuthorizing(this.openslidesClient));
     }
@@ -87,38 +78,10 @@ export class AuthService {
     private readonly pkceStateStorageKey = 'pkceState';
     private readonly pkceCodeVerifierStorageKey = 'pkceCodeVerifier';
 
-    // private readonly githubServer = {
-    //     authorizePath: 'https://github.com/login/oauth/authorize',
-    //     tokenPath: 'https://github.com/login/oauth/access_token'
-    // };
-
-    // private readonly localServer = {
-    //     authorizePath: 'http://localhost:9001/authorize',
-    //     tokenPath: 'http://localhost:9001/token'
-    // };
-
     private readonly openslidesServer = {
         authorizePath: 'http://localhost:8010/authorize',
         tokenPath: 'http://localhost:8010/token'
     };
-
-    // private readonly githubClient: Client = {
-    //     clientId: 'b23d89d084a693d4a60d',
-    //     clientSecret: 'bc8cca6314034743710659605d031bb970a027ca',
-    //     scope: 'user',
-    //     redirectUris: ['http://localhost:4200/callback', 'https://oauth-2-app.herokuapp.com/callback'],
-    //     state: '',
-    //     server: this.githubServer
-    // };
-
-    // private readonly localClient: Client = {
-    //     clientId: 'oauth-client-1',
-    //     clientSecret: 'oauth-client-secret-1',
-    //     redirectUris: ['http://localhost:4200'],
-    //     scope: 'foo',
-    //     state: '',
-    //     server: this.localServer
-    // };
 
     private readonly openslidesClient: Client = {
         clientId: 'oauth-client-1',
@@ -133,8 +96,6 @@ export class AuthService {
 
     public constructor(private readonly http: HttpService, private readonly storage: StorageService) {
         this.whoAmI(() => this.initiateSubject.next(true));
-        // this.localClient.state = uuid();
-        // this.githubClient.state = uuid();
     }
 
     public hello(): void {
