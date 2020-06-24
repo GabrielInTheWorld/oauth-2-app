@@ -6,37 +6,33 @@ import User from '../../core/models/user/user';
 import UserService from '../../core/models/user/user-service';
 import { UserServiceInterface } from '../../core/models/user/user-service.interface';
 import { Keys } from '../../config';
-import { Constructable, Inject } from '../../core/modules/decorators';
+import { Constructable, Inject, InjectService } from '../../core/modules/decorators';
 import { Cookie, Generator, Response } from '../interfaces/generator';
 
 @Constructable(Generator)
 export default class TokenGenerator implements Generator {
   public name = 'TokenGenerator';
 
-  @Inject(UserServiceInterface)
-  private readonly clientService: UserService;
-
-  public constructor() {
-    this.init();
-  }
+  @InjectService(UserService)
+  private readonly userService: UserService;
 
   public async createTicket(username: string, password: string): Promise<Response> {
-    const client = await this.clientService.getUserByCredentials(username, password);
-    if (client) {
+    const user = await this.userService.getUserByCredentials(username, password);
+    if (user) {
       const sessionId = uuid();
       const cookie = jwt.sign({ sessionId }, Keys.privateCookieKey(), { expiresIn: '1d' });
-      client.setSession(sessionId);
-      const token = this.generateToken(sessionId, client);
-      return { cookie, token, client };
+      user.setSession(sessionId);
+      const token = `Bearer ${this.generateToken(sessionId, user)}`;
+      return { cookie, token, client: user };
     } else {
-      throw new Error('Client is not defined.');
+      throw new Error('User is not defined.');
     }
   }
 
   public async renewTicket(cookieAsString: string): Promise<Response> {
     try {
       const refreshId = this.verifyCookie(cookieAsString);
-      const client = (await this.clientService.getUserBySessionId(refreshId.sessionId)) || ({} as User);
+      const client = (await this.userService.getUserBySessionId(refreshId.sessionId)) || ({} as User);
       const token = this.generateToken(refreshId.sessionId, client);
       return { token, cookie: cookieAsString, client };
     } catch {
@@ -46,10 +42,6 @@ export default class TokenGenerator implements Generator {
 
   public verifyCookie(cookieAsString: string): Cookie {
     return jwt.verify(cookieAsString, Keys.privateCookieKey()) as Cookie;
-  }
-
-  private init(): void {
-    this.insertMockData();
   }
 
   private generateToken(sessionId: string, client: User): string {
@@ -63,10 +55,8 @@ export default class TokenGenerator implements Generator {
     return token;
   }
 
-  private async insertMockData(): Promise<void> {
-    if (this.clientService) {
-      await this.clientService.create('admin', 'admin');
-      await this.clientService.getUserByCredentials('admin', 'admin');
-    }
+  private generateCookie(sessionId: string): string {
+    const cookie = jwt.sign({ sessionId }, Keys.privateCookieKey(), { expiresIn: '1d' });
+    return cookie;
   }
 }

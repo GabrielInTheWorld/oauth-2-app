@@ -16,6 +16,7 @@ export default class UserService implements UserServiceInterface {
   private readonly clientCollection: Map<string, User> = new Map();
 
   public constructor() {
+    this.mockUserData();
     this.getAllClientsFromDatabase().then(clients => this.initClientCollection(clients));
   }
 
@@ -56,5 +57,9 @@ export default class UserService implements UserServiceInterface {
     for (const client of clients) {
       this.clientCollection.set(client.clientId, client);
     }
+  }
+
+  private async mockUserData(): Promise<void> {
+    await this.create('admin', 'admin');
   }
 }

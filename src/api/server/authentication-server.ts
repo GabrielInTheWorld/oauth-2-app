@@ -54,17 +54,7 @@ export default class AuthenticationServer implements BaseServer {
   }
 
   private initializeConfig(): void {
-    this.app.use(
-      (req, res, next) => this.corsFunction(req, res, next)
-      // cors({
-      //   allowedHeaders:
-      //     'Origin, X-Requested-With, Content-Type, X-Content-Type,
-      // Authentication, Authorization, X-Access-Token, Accept',
-      //   credentials: false, // true with cookies
-      //   origin: '*', // specify the port for working with cookies
-      //   methods: 'OPTIONS, GET, POST, PUT, DELETE'
-      // })
-    );
+    this.app.use((req, res, next) => this.corsFunction(req, res, next));
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(cookieParser());
@@ -79,10 +69,6 @@ export default class AuthenticationServer implements BaseServer {
 
   private initClient(): void {
     this.app.use('/', express.static(path.resolve(this.CLIENT_PATH)));
-    // const index = path.join(path.resolve(this.CLIENT_PATH), 'index.html');
-    // this.app.get('*', (_, res) => {
-    //     res.sendFile(index);
-    // });
   }
 
   private corsFunction(req: express.Request, res: express.Response, next: express.NextFunction): void {

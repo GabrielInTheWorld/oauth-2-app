@@ -2,11 +2,11 @@ import User from '../../core/models/user/user';
 import { InjectableClass } from '../../core/modules/decorators';
 
 export interface Token {
-  payload: {
-    expiresAt: Date;
-    userId: number;
-    sessionId: string;
-  };
+  expiresAt: Date;
+  userId: number;
+  sessionId: string;
+  issuer: string;
+  payload: {};
   signature: string;
 }
 

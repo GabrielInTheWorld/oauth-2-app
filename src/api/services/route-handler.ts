@@ -13,7 +13,7 @@ import TokenGenerator from './token-generator';
 export default class RouteHandler implements RouteHandlerInterface {
   public name = 'RouteHandler';
 
-  @Inject(UserServiceInterface)
+  @InjectService(UserService)
   private readonly clientService: UserService;
 
   @Inject(Generator)
