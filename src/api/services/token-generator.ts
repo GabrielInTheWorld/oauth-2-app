@@ -2,9 +2,9 @@ import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import { uuid } from 'uuidv4';
 
-import Client from '../../core/models/user/user';
-import ClientService from '../../core/models/user/user-service';
-import { ClientServiceInterface } from '../../core/models/user/user-service.interface';
+import User from '../../core/models/user/user';
+import UserService from '../../core/models/user/user-service';
+import { UserServiceInterface } from '../../core/models/user/user-service.interface';
 import { Keys } from '../../config';
 import { Constructable, Inject } from '../../core/modules/decorators';
 import { Cookie, Generator, Response } from '../interfaces/generator';
@@ -13,15 +13,15 @@ import { Cookie, Generator, Response } from '../interfaces/generator';
 export default class TokenGenerator implements Generator {
   public name = 'TokenGenerator';
 
-  @Inject(ClientServiceInterface)
-  private readonly clientService: ClientService;
+  @Inject(UserServiceInterface)
+  private readonly clientService: UserService;
 
   public constructor() {
     this.init();
   }
 
   public async createTicket(username: string, password: string): Promise<Response> {
-    const client = await this.clientService.getClientByCredentials(username, password);
+    const client = await this.clientService.getUserByCredentials(username, password);
     if (client) {
       const sessionId = uuid();
       const cookie = jwt.sign({ sessionId }, Keys.privateCookieKey(), { expiresIn: '1d' });
@@ -36,7 +36,7 @@ export default class TokenGenerator implements Generator {
   public async renewTicket(cookieAsString: string): Promise<Response> {
     try {
       const refreshId = this.verifyCookie(cookieAsString);
-      const client = (await this.clientService.getClientBySessionId(refreshId.sessionId)) || ({} as Client);
+      const client = (await this.clientService.getUserBySessionId(refreshId.sessionId)) || ({} as User);
       const token = this.generateToken(refreshId.sessionId, client);
       return { token, cookie: cookieAsString, client };
     } catch {
@@ -52,7 +52,7 @@ export default class TokenGenerator implements Generator {
     this.insertMockData();
   }
 
-  private generateToken(sessionId: string, client: Client): string {
+  private generateToken(sessionId: string, client: User): string {
     const token = jwt.sign(
       { username: client.username, expiresIn: '10m', sessionId, clientId: client.clientId },
       Keys.privateKey(),
@@ -66,7 +66,7 @@ export default class TokenGenerator implements Generator {
   private async insertMockData(): Promise<void> {
     if (this.clientService) {
       await this.clientService.create('admin', 'admin');
-      await this.clientService.getClientByCredentials('admin', 'admin');
+      await this.clientService.getUserByCredentials('admin', 'admin');
     }
   }
 }

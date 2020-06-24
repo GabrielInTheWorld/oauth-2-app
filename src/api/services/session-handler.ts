@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-import Client from '../../core/models/user/user';
+import User from '../../core/models/user/user';
 import { Keys } from '../../config';
 import { Constructable } from '../../core/modules/decorators';
 import { Cookie } from '../interfaces/generator';
@@ -13,7 +13,7 @@ export default class SessionHandler implements SessionHandlerInterface {
 
   private readonly cookie = 'cookie';
 
-  private readonly activeSessions: Map<string, Client> = new Map();
+  private readonly activeSessions: Map<string, User> = new Map();
 
   public validateSession(request: any, response: Response, next: NextFunction): Response | void {
     const refreshId = request.cookies['refreshId'] as string;
@@ -61,7 +61,7 @@ export default class SessionHandler implements SessionHandlerInterface {
     return this.activeSessions.has(sessionId);
   }
 
-  public addSession(client: Client): boolean {
+  public addSession(client: User): boolean {
     if (!this.hasSession(client.sessionId)) {
       this.activeSessions.set(client.sessionId, client);
       return true;

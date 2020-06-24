@@ -1,7 +1,7 @@
 import { BaseModel } from '../../base/base-model';
 
-export default class Client extends BaseModel implements IClient {
-  public static readonly COLLECTIONSTRING = 'client';
+export default class User extends BaseModel implements IUser {
+  public static readonly COLLECTIONSTRING = 'user';
 
   public readonly username: string;
   public readonly password: string;
@@ -13,7 +13,7 @@ export default class Client extends BaseModel implements IClient {
   }
 
   public constructor(input?: any) {
-    super(Client.COLLECTIONSTRING, input);
+    super(User.COLLECTIONSTRING, input);
   }
 
   public setSession(sessionId: string): void {
@@ -21,6 +21,6 @@ export default class Client extends BaseModel implements IClient {
   }
 }
 
-export interface IClient {
+export interface IUser {
   sessionId: string;
 }

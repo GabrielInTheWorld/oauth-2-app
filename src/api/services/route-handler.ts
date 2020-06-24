@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 
-import ClientService from '../../core/models/user/user-service';
-import { ClientServiceInterface } from '../../core/models/user/user-service.interface';
+import UserService from '../../core/models/user/user-service';
+import { UserServiceInterface } from '../../core/models/user/user-service.interface';
 import { Constructable, Inject, InjectService } from '../../core/modules/decorators';
 import { Cookie, Generator } from '../interfaces/generator';
 import { RouteHandlerInterface } from '../interfaces/route-handler-interface';
@@ -13,8 +13,8 @@ import TokenGenerator from './token-generator';
 export default class RouteHandler implements RouteHandlerInterface {
   public name = 'RouteHandler';
 
-  @Inject(ClientServiceInterface)
-  private readonly clientService: ClientService;
+  @Inject(UserServiceInterface)
+  private readonly clientService: UserService;
 
   @Inject(Generator)
   private readonly tokenGenerator: TokenGenerator;
@@ -37,7 +37,7 @@ export default class RouteHandler implements RouteHandlerInterface {
       return;
     }
 
-    if (this.clientService.hasClient(username, password)) {
+    if (this.clientService.hasUser(username, password)) {
       const ticket = await this.tokenGenerator.createTicket(username, password);
       this.sessionHandler.addSession(ticket.client);
       response

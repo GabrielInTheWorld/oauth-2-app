@@ -1,10 +1,10 @@
-import Client from './user';
+import User from './user';
 import { InjectableClass } from '../../modules/decorators/injectable';
 
-export class ClientServiceInterface extends InjectableClass {
-  public create: (username: string, password: string) => Promise<Client>;
-  public getClientByCredentials: (username: string, password: string) => Promise<Client | undefined>;
-  public getClientBySessionId: (sessionId: string) => Promise<Client | undefined>;
-  public hasClient: (username: string, password: string) => Promise<boolean>;
-  public getAllClients: () => Client[];
+export class UserServiceInterface extends InjectableClass {
+  public create: (username: string, password: string) => Promise<User>;
+  public getUserByCredentials: (username: string, password: string) => Promise<User | undefined>;
+  public getUserBySessionId: (sessionId: string) => Promise<User | undefined>;
+  public hasUser: (username: string, password: string) => Promise<boolean>;
+  public getAllUsers: () => User[];
 }
