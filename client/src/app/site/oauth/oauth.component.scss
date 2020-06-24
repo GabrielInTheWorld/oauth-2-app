@@ -1,3 +1,11 @@
-.space-bottom-5 {
-    margin-bottom: 5px;
+.space-right-12 {
+    margin-right: 12px;
+}
+
+.oauth-card {
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    min-width: 500px;
+    max-width: 900px;
 }

@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-import Client from '../../core/models/client/client';
+import Client from '../../core/models/user/user';
 import { Keys } from '../../config';
 import { Constructable } from '../../core/modules/decorators';
 import { Cookie } from '../interfaces/generator';

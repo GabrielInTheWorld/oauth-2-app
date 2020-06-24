@@ -11,6 +11,13 @@ import Routes from '../routes/Routes';
 
 @Constructable(BaseServer)
 export default class AuthenticationServer implements BaseServer {
+  public static readonly ALLOWED_ORIGINS = [
+    'http://localhost:8000',
+    'http://localhost:4200',
+    'http://localhost:4210',
+    'http://localhost:8010'
+  ];
+
   public name = 'AuthenticationServer';
 
   private app: express.Application;
@@ -20,12 +27,22 @@ export default class AuthenticationServer implements BaseServer {
 
   private readonly CLIENT_PATH = 'client/dist/client';
 
-  public constructor() {
+  private readonly port: number;
+
+  public constructor(input: { port: number }) {
+    this.port = input.port;
     this.createApp();
     this.createServer();
     this.initializeConfig();
     this.initializeRoutes();
     this.initClient();
+  }
+  public getApp(): express.Application {
+    return this.app;
+  }
+
+  public getServer(): Server {
+    return this.server;
   }
 
   private createApp(): void {
@@ -37,16 +54,17 @@ export default class AuthenticationServer implements BaseServer {
   }
 
   private initializeConfig(): void {
-    // this.app.use(
-    //   cors({
-    //     allowedHeaders:
-    //       'Origin, X-Requested-With, Content-Type, X-Content-Type, Authentication, Authorization, X-Access-Token, Accept',
-    //     credentials: false,
-    //     origin: '*',
-    //     methods: 'OPTIONS, GET, POST, PUT, DELETE'
-    //   })
-    // );
-    this.app.use(cors());
+    this.app.use(
+      (req, res, next) => this.corsFunction(req, res, next)
+      // cors({
+      //   allowedHeaders:
+      //     'Origin, X-Requested-With, Content-Type, X-Content-Type,
+      // Authentication, Authorization, X-Access-Token, Accept',
+      //   credentials: false, // true with cookies
+      //   origin: '*', // specify the port for working with cookies
+      //   methods: 'OPTIONS, GET, POST, PUT, DELETE'
+      // })
+    );
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(cookieParser());
@@ -67,11 +85,18 @@ export default class AuthenticationServer implements BaseServer {
     // });
   }
 
-  public getApp(): express.Application {
-    return this.app;
-  }
-
-  public getServer(): Server {
-    return this.server;
+  private corsFunction(req: express.Request, res: express.Response, next: express.NextFunction): void {
+    const origin = req.headers.origin;
+    const requestingOrigin = Array.isArray(origin) ? origin.join(' ') : origin || '';
+    if (AuthenticationServer.ALLOWED_ORIGINS.indexOf(requestingOrigin) > -1) {
+      res.setHeader('Access-Control-Allow-Origin', requestingOrigin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS, POST, DELETE, PUT');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, X-Content-Type, Authentication, Authorization, X-Access-Token, Accept'
+    );
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    return next();
   }
 }

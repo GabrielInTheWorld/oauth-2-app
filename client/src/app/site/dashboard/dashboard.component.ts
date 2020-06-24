@@ -5,13 +5,14 @@ import { Subscription } from 'rxjs';
 import { AuthService, ClientProvider } from 'src/app/core/services/auth.service';
 import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
 import { StorageService } from 'src/app/core/services/storage.service';
+import { BaseComponent } from 'src/app/core/models/BaseComponent';
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent extends BaseComponent implements OnInit, OnDestroy {
     public get color(): IndicatorColor {
         return this.auth.isAuthenticated() ? 'green' : 'red';
     }
@@ -24,17 +25,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return !this.loginFormHasValues;
     }
 
-    public get localOAuthUrl(): string {
-        // this.clientProvider = ClientProvider.OPENSLIDES;
-        // console.log('localOAuthUrl', this.auth.localOAuthUrl);
-        return this.auth.openslidesOAuthUrl;
-    }
+    // public get localOAuthUrl(): string {
+    //     // this.clientProvider = ClientProvider.OPENSLIDES;
+    //     // console.log('localOAuthUrl', this.auth.localOAuthUrl);
+    //     return this.auth.openslidesOAuthUrl;
+    // }
 
-    public get githubOAuthUrl(): string {
-        // console.log('githubOAuthUrl', this.auth.githubOAuthUrl);
-        // this.clientProvider = ClientProvider.GITHUB;
-        return this.auth.githubOAuthUrl;
-    }
+    // public get githubOAuthUrl(): string {
+    //     // console.log('githubOAuthUrl', this.auth.githubOAuthUrl);
+    //     // this.clientProvider = ClientProvider.GITHUB;
+    //     // return this.auth.githubOAuthUrl;
+    // }
 
     public loginForm: FormGroup;
 
@@ -42,16 +43,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     private pHasInitiated: boolean;
 
-    private subscriptions: Subscription[] = [];
+    // private subscriptions: Subscription[] = [];
 
-    private clientProvider: ClientProvider = ClientProvider.CUSTOM;
+    // private clientProvider: ClientProvider = ClientProvider.CUSTOM;
 
     public constructor(
         private readonly auth: AuthService,
         private readonly fb: FormBuilder,
         private readonly route: ActivatedRoute,
         private readonly storage: StorageService
-    ) {}
+    ) {
+        super();
+    }
 
     public async ngOnInit(): Promise<void> {
         await this.getProviderFromStorage();
@@ -66,17 +69,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.auth.InitiateObservable.subscribe(hasInitiated => (this.pHasInitiated = hasInitiated))
         );
         this.checkLoginForm(this.loginForm.value);
-        this.subscriptions.push(
-            this.route.url.subscribe(urlSegments => console.log('urlSegments', urlSegments)),
-            this.route.queryParams.subscribe((queryParams: { state: string; code?: string }) => {
-                console.log('queryParams', queryParams);
-                console.log('provider', this.clientProvider);
-                // if (queryParams.state !== )
-                if (queryParams.code) {
-                    this.auth.oAuth2Callback(queryParams.code, queryParams.state);
-                }
-            })
-        );
+        // this.subscriptions.push(
+        //     this.route.url.subscribe(urlSegments => console.log('urlSegments', urlSegments)),
+        //     this.route.queryParams.subscribe((queryParams: { state: string; code?: string }) => {
+        //         console.log('queryParams', queryParams);
+        //         console.log('provider', this.clientProvider);
+        //         if (queryParams.code) {
+        //             this.auth.oAuth2Callback(queryParams.code, queryParams.state);
+        //         }
+        //     })
+        // );
     }
 
     public ngOnDestroy(): void {
@@ -86,15 +88,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscriptions = [];
     }
 
-    public login(): void {
-        this.auth.login(this.loginForm.value);
+    public sayHello(): void {
+        this.auth.sayHello().then(answer => console.log('sayHello:', answer));
     }
 
-    /**
-     * Where is this used?
-     */
-    public loginWithGithub(): void {
-        this.auth.loginWithGithub();
+    public login(): void {
+        this.auth.login(this.loginForm.value);
     }
 
     public whoAmI(): void {

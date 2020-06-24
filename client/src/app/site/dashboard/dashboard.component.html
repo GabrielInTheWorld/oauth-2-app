@@ -6,9 +6,10 @@
     </ng-container>
     <ng-container *ngIf="hasInitiated">
         <app-indicator [color]="color"></app-indicator>
-        <h1 class="underscore">OpenSlides4 Authentifizierungsdienst</h1>
+        <h1 class="underscore">OAuth2.0 App</h1>
         <button mat-button (click)="whoAmI()">Who am I</button>
         <ng-container *ngIf="isAuthenticated()">
+            <button mat-button (click)="sayHello()">Sag Hallo</button>
             <button mat-button (click)="logout()">Abmelden</button>
         </ng-container>
         <ng-container *ngIf="!isAuthenticated()">
@@ -25,12 +26,6 @@
                 </div>
             </form>
             <div>
-                <!-- <a mat-raised-button (click)="setAuthenticationProvider('local')" [href]="localOAuthUrl" color="warn">
-                    Zugang zu OpenSlides
-                </a> -->
-                <!-- <a mat-raised-button (click)="setAuthenticationProvider('github')" [href]="githubOAuthUrl" color="warn">
-                    Anmelden mit GitHub
-                </a> -->
                 <button mat-raised-button color="primary" [disabled]="disableConfirmButton" (click)="login()">
                     Anmelden
                 </button>
