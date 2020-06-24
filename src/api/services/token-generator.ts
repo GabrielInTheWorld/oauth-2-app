@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import { uuid } from 'uuidv4';
+import cryptoRandomString from 'crypto-random-string';
 
 import User from '../../core/models/user/user';
 import UserService from '../../core/models/user/user-service';
@@ -13,28 +14,22 @@ import { Cookie, Generator, Response } from '../interfaces/generator';
 export default class TokenGenerator implements Generator {
   public name = 'TokenGenerator';
 
-  @InjectService(UserService)
-  private readonly userService: UserService;
-
-  public async createTicket(username: string, password: string): Promise<Response> {
-    const user = await this.userService.getUserByCredentials(username, password);
-    if (user) {
-      const sessionId = uuid();
-      const cookie = jwt.sign({ sessionId }, Keys.privateCookieKey(), { expiresIn: '1d' });
-      user.setSession(sessionId);
-      const token = `Bearer ${this.generateToken(sessionId, user)}`;
-      return { cookie, token, client: user };
-    } else {
-      throw new Error('User is not defined.');
+  public async createTicket(user: User): Promise<Response> {
+    if (!Object.keys(user).length) {
+      throw new Error('user is empty.');
     }
+    const sessionId = cryptoRandomString({ length: 32 });
+    user.setSession(sessionId);
+    const cookie = this.generateCookie(sessionId);
+    const token = this.generateToken(sessionId, user);
+    return { cookie, token, user };
   }
 
-  public async renewTicket(cookieAsString: string): Promise<Response> {
+  public async renewTicket(cookie: string, sessionId: string, user: User): Promise<Response> {
     try {
-      const refreshId = this.verifyCookie(cookieAsString);
-      const client = (await this.userService.getUserBySessionId(refreshId.sessionId)) || ({} as User);
-      const token = this.generateToken(refreshId.sessionId, client);
-      return { token, cookie: cookieAsString, client };
+      const refreshId = this.verifyCookie(cookie);
+      const token = this.generateToken(refreshId.sessionId, user);
+      return { token, cookie, user };
     } catch {
       throw new Error('Cookie has wrong format.');
     }

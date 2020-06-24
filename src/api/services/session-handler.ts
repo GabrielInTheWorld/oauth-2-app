@@ -61,9 +61,9 @@ export default class SessionHandler implements SessionHandlerInterface {
     return this.activeSessions.has(sessionId);
   }
 
-  public addSession(client: User): boolean {
-    if (!this.hasSession(client.sessionId)) {
-      this.activeSessions.set(client.sessionId, client);
+  public addSession(user: User): boolean {
+    if (!this.hasSession(user.sessionId)) {
+      this.activeSessions.set(user.sessionId, user);
       return true;
     } else {
       return false;

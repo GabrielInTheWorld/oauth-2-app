@@ -8,13 +8,15 @@ import { Cookie, Generator } from '../interfaces/generator';
 import { RouteHandlerInterface } from '../interfaces/route-handler-interface';
 import SessionHandler from './session-handler';
 import TokenGenerator from './token-generator';
+import User from 'src/core/models/user/user';
+import TokenValidator from './token-validator';
 
 @Constructable(RouteHandlerInterface)
 export default class RouteHandler implements RouteHandlerInterface {
   public name = 'RouteHandler';
 
   @InjectService(UserService)
-  private readonly clientService: UserService;
+  private readonly userService: UserService;
 
   @Inject(Generator)
   private readonly tokenGenerator: TokenGenerator;
@@ -37,32 +39,34 @@ export default class RouteHandler implements RouteHandlerInterface {
       return;
     }
 
-    if (this.clientService.hasUser(username, password)) {
-      const ticket = await this.tokenGenerator.createTicket(username, password);
-      this.sessionHandler.addSession(ticket.client);
-      response
-        .cookie('refreshId', ticket.cookie, {
-          maxAge: 7200000,
-          httpOnly: true,
-          secure: false
-        })
-        .send({
-          success: true,
-          message: 'Authentication successful!',
-          token: ticket.token
-        });
-    } else {
+    if (!this.userService.hasUser(username, password)) {
       response.status(403).json({
         success: false,
         message: 'Incorrect username or password'
       });
     }
+    const user = (await this.userService.getUserByCredentials(username, password)) || ({} as User);
+    const ticket = await this.tokenGenerator.createTicket(user);
+    this.sessionHandler.addSession(ticket.user);
+    response
+      .cookie('refreshId', ticket.cookie, {
+        maxAge: 7200000,
+        httpOnly: true,
+        secure: false
+      })
+      .send({
+        success: true,
+        message: 'Authentication successful!',
+        token: ticket.token
+      });
   }
 
   public async whoAmI(request: express.Request, response: express.Response): Promise<void> {
-    const cookie = request.cookies['refreshId'];
+    const cookieAsString = request.cookies['refreshId'];
+    const cookie = TokenValidator.verifyCookie(cookieAsString);
+    const user = (await this.userService.getUserBySessionId(cookie.sessionId)) || ({} as User);
     try {
-      const ticket = await this.tokenGenerator.renewTicket(cookie);
+      const ticket = await this.tokenGenerator.renewTicket(cookieAsString, cookie.sessionId, user);
       response.json({
         success: true,
         message: 'Authentication successful!',

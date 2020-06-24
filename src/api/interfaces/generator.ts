@@ -18,11 +18,11 @@ export interface Cookie {
 export interface Response {
   cookie: string;
   token: string;
-  client: User;
+  user: User;
 }
 
 export class Generator extends InjectableClass {
-  public createTicket: (username: string, password: string) => Promise<Response>;
-  public renewTicket: (cookie: string) => Promise<Response>;
+  public createTicket: (user: User) => Promise<Response>;
+  public renewTicket: (cookie: string, sessionId: string, user: User) => Promise<Response>;
   public verifyCookie: (cookie: string) => Cookie;
 }
