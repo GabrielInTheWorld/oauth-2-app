@@ -57,7 +57,7 @@ export default class RouteHandler implements RouteHandlerInterface {
       .send({
         success: true,
         message: 'Authentication successful!',
-        token: ticket.token
+        token: `bearer ${ticket.token}`
       });
   }
 
@@ -70,7 +70,7 @@ export default class RouteHandler implements RouteHandlerInterface {
       response.json({
         success: true,
         message: 'Authentication successful!',
-        token: ticket.token
+        token: `bearer ${ticket.token}`
       });
     } catch {
       response.json({

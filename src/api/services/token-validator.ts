@@ -45,9 +45,15 @@ export default class TokenValidator implements Validator {
         message: 'Auth token is not supplied'
       });
     }
-    if (token.startsWith('Bearer')) {
-      token = token.slice(7, token.length);
+    const tokenParts = token.split(' ');
+    if (tokenParts[0].toLowerCase() !== 'bearer') {
+      console.log('no bearer');
+      return response.json({
+        success: false,
+        message: 'No bearer token provided'
+      });
     }
+    token = tokenParts[1];
 
     try {
       console.time('verify');
