@@ -79,13 +79,13 @@ export class AuthService {
     private readonly pkceCodeVerifierStorageKey = 'pkceCodeVerifier';
 
     private readonly openslidesServer = {
-        authorizePath: 'http://localhost:8010/authorize',
-        tokenPath: 'http://localhost:8010/token'
+        authorizePath: `${this.getOAuthServerURL()}/authorize`,
+        tokenPath: `${this.getOAuthServerURL()}/token`
     };
 
     private readonly openslidesClient: Client = {
         clientId: 'oauth-client-1',
-        redirectUris: ['http://localhost:4200/callback'],
+        redirectUris: [`${this.getOAuthCallback()}`],
         scope: 'user',
         state: 'openslides',
         server: this.openslidesServer
@@ -300,5 +300,19 @@ export class AuthService {
 
     private sha(plain: string): string {
         return new sha256().update(plain).digest('hex');
+    }
+
+    private getOAuthServerURL(): string {
+        const protocol = window.location.protocol;
+        const location = window.location.hostname;
+        const port = window.location.port;
+        return `${protocol}//${location}:${port === '4200' ? '8010' : port}`;
+    }
+
+    private getOAuthCallback(): string {
+        const protocol = window.location.protocol;
+        const location = window.location.hostname;
+        const port = window.location.port;
+        return `${protocol}//${location}:${port === '4200' ? '4200/callback' : `${port}/callback`}`;
     }
 }

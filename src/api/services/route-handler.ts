@@ -2,13 +2,12 @@ import express from 'express';
 import path from 'path';
 
 import UserService from '../../core/models/user/user-service';
-import { UserServiceInterface } from '../../core/models/user/user-service.interface';
 import { Constructable, Inject, InjectService } from '../../core/modules/decorators';
 import { Cookie, Generator } from '../interfaces/generator';
 import { RouteHandlerInterface } from '../interfaces/route-handler-interface';
 import SessionHandler from './session-handler';
 import TokenGenerator from './token-generator';
-import User from 'src/core/models/user/user';
+import User from '../../core/models/user/user';
 import TokenValidator from './token-validator';
 
 @Constructable(RouteHandlerInterface)
