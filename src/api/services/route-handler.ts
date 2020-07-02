@@ -142,15 +142,8 @@ export default class RouteHandler implements RouteHandlerInterface {
   }
 
   public index(_: any, response: express.Response): void {
-    // response.json({
-    //     success: true,
-    //     message: 'Hello World'
-    // });
     const index = path.join(path.resolve(this.CLIENT_PATH), 'index.html');
-    // this.app.use('/', express.static(path.resolve(this.CLIENT_PATH)));
     response.sendFile(index);
-    // this.app.get('*', (_, res) => {
-    // });
   }
 
   public secureIndex(_: any, response: express.Response): void {

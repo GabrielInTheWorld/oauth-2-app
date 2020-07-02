@@ -49,6 +49,7 @@ export default class Routes {
   private initPublicRoutes(): void {
     this.app.post('/login', (request, response) => this.routeHandler.login(request, response)); // Sends token
     this.app.get('/', (request, response) => this.routeHandler.index(request, response));
+    this.app.get('/callback', (req, res) => this.routeHandler.index(req, res));
     this.app.post(
       '/who-am-i',
       (request, response, next) => this.sessionHandler.validateSession(request, response, next),
