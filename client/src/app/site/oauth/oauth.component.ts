@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { BaseComponent } from 'src/app/core/models/base.component';
 import { AuthService, ClientProvider, TokenType } from 'src/app/core/services/auth.service';
 import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
+import { OauthMotionsService } from '../services/oauth-motions.service';
 
 @Component({
     selector: 'app-oauth',
@@ -24,9 +25,16 @@ export class OauthComponent extends BaseComponent implements OnInit {
 
     private helloMessage = '';
 
+    public motions: any[] = [];
+    public specificMotion: any = null;
+
     private tokenType: TokenType = null;
 
-    public constructor(private readonly authService: AuthService, private readonly route: ActivatedRoute) {
+    public constructor(
+        private readonly authService: AuthService,
+        private readonly route: ActivatedRoute,
+        private motionService: OauthMotionsService
+    ) {
         super();
     }
 
@@ -47,6 +55,17 @@ export class OauthComponent extends BaseComponent implements OnInit {
         this.authService.oAuth2(ClientProvider.OPENSLIDES);
     }
 
+    public goToMotion(id: string): void {
+        this.motionService.get(id).then(answer => {
+            console.log('motion', answer);
+            this.specificMotion = answer.motion;
+        });
+    }
+
+    public back(): void {
+        this.specificMotion = null;
+    }
+
     private setToken(tokenType: TokenType): void {
         if (tokenType) {
             this.tokenType = tokenType;
@@ -58,6 +77,10 @@ export class OauthComponent extends BaseComponent implements OnInit {
                     this.helloMessage = answer.message;
                 })
                 .catch(e => console.log('error:', e));
+            this.motionService.getAll().then(answer => {
+                console.log('answer', answer);
+                this.motions = answer.motions;
+            });
         }
     }
 }

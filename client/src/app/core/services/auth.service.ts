@@ -54,6 +54,9 @@ export enum ClientProvider {
     providedIn: 'root'
 })
 export class AuthService {
+    public static readonly devOAuthServer = 'http://localhost:8010';
+    public static readonly prodOAuthServer = 'https://oauth-authorization.herokuapp.com';
+
     public get InitiateObservable(): Observable<boolean> {
         return this.initiateSubject.asObservable();
     }
@@ -79,8 +82,8 @@ export class AuthService {
     private readonly pkceCodeVerifierStorageKey = 'pkceCodeVerifier';
 
     private readonly openslidesServer = {
-        authorizePath: `${this.getOAuthServerURL()}/authorize`,
-        tokenPath: `${this.getOAuthServerURL()}/token`
+        authorizePath: `${AuthService.getOAuthServerURL()}/authorize`,
+        tokenPath: `${AuthService.getOAuthServerURL()}/token`
     };
 
     private readonly openslidesClient: Client = {
@@ -96,6 +99,14 @@ export class AuthService {
 
     public constructor(private readonly http: HttpService, private readonly storage: StorageService) {
         this.whoAmI(() => this.initiateSubject.next(true));
+    }
+
+    public static getOAuthServerURL(): string {
+        // const protocol = window.location.protocol;
+        // const location = window.location.hostname;
+        const port = window.location.port;
+        return port === '4200' ? AuthService.devOAuthServer : AuthService.prodOAuthServer;
+        // return `${protocol}//${location}:${port === '4200' ? '8010' : port}`;
     }
 
     public hello(): void {
@@ -115,7 +126,7 @@ export class AuthService {
             { token: JSON.stringify({ authorization: this.oauthToken }), hello: 'world' },
             null,
             null,
-            'http://localhost:8010'
+            AuthService.getOAuthServerURL()
         );
     }
 
@@ -125,7 +136,7 @@ export class AuthService {
             null,
             new HttpHeaders().set('authorization', this.tokenSubject.value.accessToken),
             null,
-            'http://localhost:8010'
+            AuthService.getOAuthServerURL()
         );
     }
 
@@ -183,7 +194,7 @@ export class AuthService {
                     code_verifier: storedCodeVerifier
                 },
                 null,
-                'http://localhost:8010'
+                AuthService.getOAuthServerURL()
             )
             .then(answer => {
                 console.log('answer from token-endpoint', answer);
@@ -300,13 +311,6 @@ export class AuthService {
 
     private sha(plain: string): string {
         return new sha256().update(plain).digest('hex');
-    }
-
-    private getOAuthServerURL(): string {
-        const protocol = window.location.protocol;
-        const location = window.location.hostname;
-        const port = window.location.port;
-        return `${protocol}//${location}:${port === '4200' ? '8010' : port}`;
     }
 
     private getOAuthCallback(): string {
