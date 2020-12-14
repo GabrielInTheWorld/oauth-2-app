@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { sha256 } from 'sha.js';
 import * as url from 'url';
+import { AuthTokenService } from './auth-token.service';
 
 import { HttpService, Answer, HTTPMethod } from './http.service';
 import { StorageService } from './storage.service';
@@ -69,13 +70,7 @@ export class AuthService {
         return this.buildURL(this.openslidesServer.authorizePath, this.getOptionsForAuthorizing(this.openslidesClient));
     }
 
-    private accessToken: string;
-
     private oauthToken: string;
-
-    private readonly refreshToken: string;
-
-    private readonly state: string;
 
     private readonly providerStorageKey = 'provider';
     private readonly pkceStateStorageKey = 'pkceState';
@@ -97,16 +92,17 @@ export class AuthService {
     private readonly initiateSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private readonly tokenSubject: BehaviorSubject<TokenType> = new BehaviorSubject(null);
 
-    public constructor(private readonly http: HttpService, private readonly storage: StorageService) {
+    public constructor(
+        private readonly http: HttpService,
+        private readonly authTokenService: AuthTokenService,
+        private readonly storage: StorageService
+    ) {
         this.whoAmI(() => this.initiateSubject.next(true));
     }
 
     public static getOAuthServerURL(): string {
-        // const protocol = window.location.protocol;
-        // const location = window.location.hostname;
         const port = window.location.port;
         return port === '4200' ? AuthService.devOAuthServer : AuthService.prodOAuthServer;
-        // return `${protocol}//${location}:${port === '4200' ? '8010' : port}`;
     }
 
     public hello(): void {
@@ -117,7 +113,7 @@ export class AuthService {
     }
 
     public sayHello(): Promise<void> {
-        return this.http.get('/api/hello', null, new HttpHeaders({ authentication: this.accessToken }));
+        return this.http.get('/api/hello');
     }
 
     public helloApi(): Promise<void> {
@@ -143,9 +139,9 @@ export class AuthService {
     public login(credentials: { username: string; password: string }): void {
         this.http.post<LoginAnswer>('/login', credentials).then(answer => {
             console.log('answer', answer);
-            if (answer && answer.success) {
-                this.accessToken = answer.token;
-            }
+            // if (answer && answer.success) {
+            //     this.accessToken = answer.token;
+            // }
         });
     }
 
@@ -213,24 +209,25 @@ export class AuthService {
             .post<LoginAnswer>('/who-am-i')
             .then(answer => {
                 console.log('answer', answer);
-                if (answer && answer.success) {
-                    this.accessToken = answer.token;
-                }
+                // if (answer && answer.success) {
+                //     this.accessToken = answer.token;
+                // }
             })
             .then(() => (callback ? callback() : undefined));
     }
 
     public logout(): void {
-        this.requestSecureRoute(HTTPMethod.POST, 'logout').then(answer => {
+        this.http.post('api/logout').then(answer => {
             console.log('logout', answer);
             if (answer && answer.success) {
-                this.accessToken = null;
+                // this.accessToken = null;
+                this.authTokenService.setRawAccessToken(null);
             }
         });
     }
 
     public isAuthenticated(): boolean {
-        return !!this.accessToken;
+        return !!this.authTokenService.accessToken;
     }
 
     public getAccessToken(code: string, state: string, provider: ClientProvider): any {
@@ -241,19 +238,19 @@ export class AuthService {
             .then(answer => console.log('answer from accesstoken', answer));
     }
 
-    private async requestSecureRoute(method: HTTPMethod, path: string, data?: any): Promise<Answer> {
-        if (!path.startsWith('/')) {
-            path = `/${path}`;
-        }
-        const pathToServer = `/api${path}`;
-        const headers: HttpHeaders = new HttpHeaders().set('authentication', this.accessToken);
-        switch (method) {
-            case HTTPMethod.POST:
-                return this.http.post(pathToServer, data, headers);
-            case HTTPMethod.GET:
-                return this.http.get(pathToServer, headers);
-        }
-    }
+    // private async requestSecureRoute(method: HTTPMethod, path: string, data?: any): Promise<Answer> {
+    //     if (!path.startsWith('/')) {
+    //         path = `/${path}`;
+    //     }
+    //     const pathToServer = `/api${path}`;
+    //     const headers: HttpHeaders = new HttpHeaders().set('authentication', this.accessToken);
+    //     switch (method) {
+    //         case HTTPMethod.POST:
+    //             return this.http.post(pathToServer, data, headers);
+    //         case HTTPMethod.GET:
+    //             return this.http.get(pathToServer, headers);
+    //     }
+    // }
 
     private buildURL(path: string, options: UrlOptions, hash?: string): string {
         const newUrl = url.parse(path, true);

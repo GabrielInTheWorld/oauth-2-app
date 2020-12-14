@@ -53,6 +53,7 @@
     "tslint": "^6.1.1"
   },
   "dependencies": {
+    "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -64,6 +65,7 @@
     "jsonwebtoken": "^8.5.1",
     "pouchdb": "^7.2.1",
     "pouchdb-adapter-memory": "^7.2.1",
+    "pouchdb-find": "^7.2.2",
     "qs": "^6.9.4",
     "randomstring": "^1.1.5",
     "react": "^16.13.1",

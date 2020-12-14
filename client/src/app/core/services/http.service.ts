@@ -1,5 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 export interface Answer {
     success: boolean;
@@ -55,23 +56,27 @@ export class HttpService {
         const url = path.startsWith('/') ? `${serverURL}${path}` : `${serverURL}/${path}`;
         // const url = path;
 
-        if (customHeader) {
-            for (const header of this.defaultHeaders.keys()) {
-                customHeader.set(header, this.defaultHeaders.getAll(header));
-            }
-        }
+        // if (customHeader) {
+        //     for (const header of this.defaultHeaders.keys()) {
+        //         customHeader.set(header, this.defaultHeaders.getAll(header));
+        //     }
+        // }
 
         const options = {
+            observe: 'response',
             body: data,
             headers: customHeader ? customHeader : this.defaultHeaders,
             withCredentials: true, // true for working with cookies
             responseType: responseType as 'json'
         };
 
-        console.log('options', options);
+        // console.log('options', options);
 
         try {
-            return await this.http.request<T>(method, url, options).toPromise();
+            const response = await (this.http.request<T>(method, url, options as any) as Observable<
+                HttpResponse<T>
+            >).toPromise();
+            return response.body;
         } catch (e) {
             console.log('error', e);
             // throw this.handleError(e);

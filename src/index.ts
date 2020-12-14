@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 
-import AuthenticationServer from './api/server/authentication-server';
-import BaseServer from './api/interfaces/base-server';
-import { Inject } from './core/modules/decorators';
+import AuthenticationServer from './express/server/authentication-server';
+import { BaseServer } from './express/interfaces/base-server';
+import { Factory } from './application/model-layer/core/modules/decorators';
 
 export class Server {
   public static readonly PORT: number = parseInt(process.env.PORT || '', 10) || 8000;
@@ -11,8 +11,8 @@ export class Server {
     return Server.PORT;
   }
 
-  @Inject(BaseServer, { port: Server.PORT })
-  private readonly httpServer: AuthenticationServer;
+  @Factory(AuthenticationServer, { port: Server.PORT })
+  private readonly httpServer: BaseServer;
 
   public start(): void {
     this.httpServer.getServer().listen(Server.PORT, () => {

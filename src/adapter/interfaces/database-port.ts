@@ -1,9 +1,26 @@
-import { InjectableClass } from '../../core/modules/decorators';
+import { InjectableClass } from '../../application/model-layer/core/modules/decorators';
 
-export class DatabasePort extends InjectableClass {
-    public set: <T>(prefix: string, key: string, obj: T) => Promise<boolean>;
-    public get: <T>(prefix: string, key: string) => Promise<T | null>;
-    public getAll: <T>(prefix: string) => Promise<T[]>;
-    public update: <T>(prefix: string, key: string, update: Partial<T>) => Promise<T>;
-    public remove: (prefix: string, key: string) => Promise<boolean>;
+export type Constructor<T = {}> = new (...args: any) => T;
+
+export interface ReplicaObject {
+  keys: () => Promise<string[]>;
+  set: <T>(key: string, obj: T) => Promise<string>;
+  get: <T>(key: string, defaultValue?: T) => Promise<T>;
+  remove: (key: string) => Promise<boolean>;
+  find: <T>(fieldKey: keyof T, fieldValue: any) => Promise<T[]>;
+}
+
+export abstract class DatabasePort extends InjectableClass {
+  public static readonly PREFIX = 'auth';
+
+  public abstract keys(prefix: string): Promise<string[]>;
+  public abstract set<T>(prefix: string, key: string, obj: T): Promise<string>;
+  public abstract get<T>(prefix: string, key: string, modelConstructor?: Constructor, defaultValue?: T): Promise<T>;
+  public abstract remove(prefix: string, key: string): Promise<boolean>;
+  public abstract find<T>(fieldKey: keyof T, fieldValue: any): Promise<T[]>;
+  public abstract getReplicaObject(
+    prefix: string,
+    modelConstructor?: new <T>(...args: any) => T,
+    indexedFields?: string[]
+  ): Promise<ReplicaObject>;
 }

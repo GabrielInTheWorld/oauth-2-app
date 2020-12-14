@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { BaseComponent } from 'src/app/core/models/base.component';
+import { AuthTokenService } from 'src/app/core/services/auth-token.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
@@ -30,7 +31,11 @@ export class DashboardComponent extends BaseComponent implements OnInit, OnDestr
 
     private pHasInitiated: boolean;
 
-    public constructor(private readonly auth: AuthService, private readonly fb: FormBuilder) {
+    public constructor(
+        private readonly auth: AuthService,
+        private readonly authTokenService: AuthTokenService,
+        private readonly fb: FormBuilder
+    ) {
         super();
     }
 
@@ -76,7 +81,8 @@ export class DashboardComponent extends BaseComponent implements OnInit, OnDestr
     }
 
     public isAuthenticated(): boolean {
-        return this.auth.isAuthenticated();
+        return !!this.authTokenService.rawAccessToken;
+        // return this.auth.isAuthenticated();
     }
 
     private checkLoginForm(value: { username: string; password: string }): void {

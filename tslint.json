@@ -72,7 +72,6 @@
         "ordered-imports": [
             true,
             {
-                "import-source-order": "case-sensitive",
                 "grouped-imports": true,
                 "groups": [{
                         "name": "internal dependencies",

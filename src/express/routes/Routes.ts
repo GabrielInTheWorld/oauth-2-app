@@ -1,0 +1,77 @@
+import * as express from 'express';
+
+import { Factory } from '../../application/model-layer/core/modules/decorators';
+import { Logger } from '../../application/services/logger';
+import { RouteHandler } from '../interfaces/route-handler';
+import RouteService from '../middleware/route-service';
+import { TicketValidator } from '../middleware/ticket-validator';
+import { Validator } from '../interfaces/validator';
+
+export class Routes {
+  private readonly SECURE_URL_PREFIX = '/api';
+
+  @Factory(TicketValidator)
+  private readonly validator: Validator;
+
+  @Factory(RouteService)
+  private readonly routeHandler: RouteHandler;
+
+  private readonly app: express.Application;
+
+  public constructor(app: express.Application) {
+    this.app = app;
+  }
+
+  public initRoutes(): void {
+    this.configRoutes();
+    this.initPublicRoutes();
+    this.initPrivateRoutes();
+    this.initApiRoutes();
+  }
+
+  private configRoutes(): void {
+    this.app.all('*', (req, res, next) => this.logRequestInformation(req, res, next));
+    this.app.all(`${this.SECURE_URL_PREFIX}/*`, (request, response, next) =>
+      this.validator.validate(request, response, next)
+    );
+  }
+
+  private initPublicRoutes(): void {
+    this.app.get('/', (request, response) => this.routeHandler.index(request, response));
+    this.app.post('/login', (request, response) => this.routeHandler.login(request, response)); // Sends token
+    this.app.get('/callback', (req, res) => this.routeHandler.index(req, res));
+    this.app.post('/who-am-i', (request, response) => this.routeHandler.whoAmI(request, response));
+  }
+  private initPrivateRoutes(): void {
+    this.app.post(
+      '/authenticate',
+      (request, response, next) => this.validator.validate(request, response, next),
+      (request, response) => this.routeHandler.authenticate(request, response)
+    );
+    this.app.post('/hash', (request, response) => this.routeHandler.hash(request, response));
+    this.app.post('/is-equals', (request, response) => this.routeHandler.isEquals(request, response));
+  }
+
+  private initApiRoutes(): void {
+    this.app.get(this.getSecureUrl('/hello'), (req, res) => this.routeHandler.secureIndex(req, res));
+    this.app.post(this.getSecureUrl('/logout'), (request, response) => this.routeHandler.logout(request, response));
+    this.app.get(this.getSecureUrl('/list-sessions'), (req, res) => this.routeHandler.getListOfSessions(req, res));
+    this.app.post(this.getSecureUrl('/clear-all-sessions-except-themselves'), (req, res) =>
+      this.routeHandler.clearAllSessionsExceptThemselves(req, res)
+    );
+    this.app.post(this.getSecureUrl('/clear-session-by-id'), (req, res) =>
+      this.routeHandler.clearUserSessionById(req, res)
+    );
+  }
+
+  private logRequestInformation(req: express.Request, res: express.Response, next: express.NextFunction): void {
+    Logger.log(`${req.protocol}://${req.headers.origin}: ${req.method} -- ${req.originalUrl}`);
+    Logger.debug('Expected content-size:', req.headers['content-length']);
+    Logger.debug('Incoming request with the following headers:\n', req.headers);
+    next();
+  }
+
+  private getSecureUrl(urlPath: string): string {
+    return `${this.SECURE_URL_PREFIX}${urlPath}`;
+  }
+}
