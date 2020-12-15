@@ -5,6 +5,8 @@ import { BaseException } from '../model-layer/core/exceptions/base-exception';
 import { Factory, Inject } from '../model-layer/core/modules/decorators';
 import { KeyHandler } from '../../express/interfaces/key-handler';
 import { KeyService } from '../../express/services/key-service';
+import { Logger } from './logger';
+import { NullPointerException } from '../model-layer/core/exceptions/null-pointer-exception';
 import { SessionHandler } from '../interfaces/session-handler';
 import { SessionService } from './session-service';
 import { Cookie, Ticket, Token } from '../model-layer/core/models/ticket';
@@ -14,8 +16,6 @@ import { UserHandler } from '../model-layer/user/user-handler';
 import { UserService } from '../model-layer/user/user-service';
 import { Validation } from '../interfaces/validation';
 import { ValidationException } from '../model-layer/core/exceptions/validation-exception';
-import { NullPointerException } from '../model-layer/core/exceptions/null-pointer-exception';
-import { Logger } from './logger';
 
 export class TicketService extends TicketHandler {
   public name = 'TokenHandler';
@@ -124,13 +124,9 @@ export class TicketService extends TicketHandler {
 
   public async validateTicket(tokenString: string, cookieString: string): Promise<Validation<Token>> {
     Logger.debug('ValidateTicket', tokenString, cookieString);
-    // if (!tokenString || !cookieString) {
-    //   return { ...this.anonymousMessage, result: anonymous };
-    // }
     try {
       this.checkJwtIsBearer(tokenString, 'Access-Token');
       this.checkJwtIsBearer(cookieString, 'Refresh-Id');
-      // this.checkBearerTicket(tokenString, cookieString);
       await this.checkSessionOfTicket(tokenString, cookieString);
       return this.checkAndRefreshToken(tokenString, cookieString);
     } catch (e) {
@@ -153,15 +149,6 @@ export class TicketService extends TicketHandler {
       throw new ValidationException(`${tokenName} has wrong format`);
     }
   }
-
-  // private checkBearerTicket(tokenString: string, cookieString: string): void {
-  //   if (!this.isBearer(tokenString)) {
-  //     throw new ValidationException('Access-Token has wrong format');
-  //   }
-  //   if (!this.isBearer(cookieString)) {
-  //     throw new ValidationException('Cookie has wrong format!');
-  //   }
-  // }
 
   private async checkSessionOfTicket(tokenString: string, cookieString: string): Promise<void> {
     const cookie = this.decode<Cookie>(cookieString);

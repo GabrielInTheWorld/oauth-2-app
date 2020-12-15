@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BaseComponent } from 'src/app/core/models/base.component';
-import { AuthService, ClientProvider, TokenType } from 'src/app/core/services/auth.service';
+import { ClientProvider, TokenType } from 'src/app/core/services/oauth.service';
+import { OauthService } from 'src/app/core/services/oauth.service';
 import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
-import { OauthMotionsService } from '../services/oauth-motions.service';
+
+import { OauthMotionsService } from '../../services/oauth-motions.service';
 
 @Component({
     selector: 'app-oauth',
@@ -31,28 +33,28 @@ export class OauthComponent extends BaseComponent implements OnInit {
     private tokenType: TokenType = null;
 
     public constructor(
-        private readonly authService: AuthService,
+        private readonly oauthService: OauthService,
         private readonly route: ActivatedRoute,
-        private motionService: OauthMotionsService
+        private readonly motionService: OauthMotionsService
     ) {
         super();
     }
 
     public ngOnInit(): void {
-        this.subscriptions.push(this.authService.TokenTypeObservable.subscribe(token => this.setToken(token)));
+        this.subscriptions.push(this.oauthService.TokenTypeObservable.subscribe(token => this.setToken(token)));
         this.subscriptions.push(
             this.route.url.subscribe(urlSegments => console.log('urlSegments', urlSegments)),
             this.route.queryParams.subscribe((queryParams: { state: string; code?: string; user_id?: string }) => {
                 console.log('queryParams', queryParams);
                 if (queryParams.code) {
-                    this.authService.oAuth2Callback(queryParams.code, queryParams.state, queryParams.user_id);
+                    this.oauthService.oAuth2Callback(queryParams.code, queryParams.state, queryParams.user_id);
                 }
             })
         );
     }
 
     public oauthOpenSlides(): void {
-        this.authService.oAuth2(ClientProvider.OPENSLIDES);
+        this.oauthService.oAuth2(ClientProvider.OPENSLIDES);
     }
 
     public goToMotion(id: string): void {
@@ -69,8 +71,8 @@ export class OauthComponent extends BaseComponent implements OnInit {
     private setToken(tokenType: TokenType): void {
         if (tokenType) {
             this.tokenType = tokenType;
-            this.authService.helloApi().then(answer => console.log('answer from api:', answer));
-            this.authService
+            this.oauthService.helloApi().then(answer => console.log('answer from api:', answer));
+            this.oauthService
                 .helloOAuth()
                 .then(answer => {
                     console.log('answer from oauth 2', answer);

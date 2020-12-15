@@ -1,10 +1,10 @@
 import { DatabaseAdapter } from '../../adapter/services/database-adapter';
 import { DatabasePort, ReplicaObject } from '../../adapter/interfaces/database-port';
-import { Constructable, Factory, Inject } from '../model-layer/core/modules/decorators';
+import { Constructable, Inject } from '../model-layer/core/modules/decorators';
 import { Random } from '../util/helper';
+import { Logger } from './logger';
 import { SessionHandler } from '../interfaces/session-handler';
 import { User } from '../model-layer/core/models/user';
-import { Logger } from './logger';
 
 @Constructable(SessionHandler)
 export class SessionService extends SessionHandler {
@@ -14,9 +14,6 @@ export class SessionService extends SessionHandler {
   private sessionDatabase: ReplicaObject;
   private userDatabase: ReplicaObject;
 
-  // private readonly activeSessions: Map<string, User> = new Map();
-  // private readonly activeUsers: Map<string, User> = new Map();
-
   public constructor() {
     super();
     this.database.getReplicaObject(SessionHandler.SESSION_KEY).then(object => (this.sessionDatabase = object));
@@ -24,7 +21,6 @@ export class SessionService extends SessionHandler {
   }
 
   public async getAllActiveSessions(): Promise<string[]> {
-    // return Array.from(this.activeSessions.keys());
     return await this.sessionDatabase.keys();
   }
 
@@ -33,9 +29,6 @@ export class SessionService extends SessionHandler {
   }
 
   public async clearSessionById(sessionId: string): Promise<void> {
-    // if (this.activeSessions.has(sessionId)) {
-    //   this.activeSessions.delete(sessionId);
-    // }
     const userId = await this.sessionDatabase.get<string>(sessionId);
     const currentSessions = await this.userDatabase.get<string[]>(userId, []);
     if (currentSessions.length) {
@@ -49,10 +42,6 @@ export class SessionService extends SessionHandler {
   }
 
   public async clearAllSessionsExceptThemselves(exceptSessionId: string): Promise<void> {
-    // const sessions = (await this.getAllActiveSessions()).filter(session => session !== exceptSessionId);
-    // for (const session of sessions) {
-    //   this.activeSessions.delete(session);
-    // }
     const userId = await this.sessionDatabase.get<string>(exceptSessionId);
     const currentSessions = await this.userDatabase.get<string[]>(userId, []);
     await Promise.all(
@@ -65,7 +54,6 @@ export class SessionService extends SessionHandler {
   }
 
   public async hasSession(sessionId: string): Promise<boolean> {
-    // return this.activeSessions.has(sessionId);
     return !!(await this.sessionDatabase.get(sessionId));
   }
 

@@ -1,7 +1,7 @@
+import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpService } from 'src/app/core/services/http.service';
-import { AuthService, TokenType } from 'src/app/core/services/auth.service';
-import { HttpHeaders } from '@angular/common/http';
+import { OauthService, TokenType } from 'src/app/core/services/oauth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,8 +11,8 @@ export class OauthMotionsService {
 
     private token: TokenType = null;
 
-    public constructor(private readonly http: HttpService, private readonly auth: AuthService) {
-        auth.TokenTypeObservable.subscribe(token => (this.token = token));
+    public constructor(private readonly http: HttpService, private readonly oauth: OauthService) {
+        oauth.TokenTypeObservable.subscribe(token => (this.token = token));
     }
 
     public async getAll(): Promise<any> {
@@ -21,7 +21,7 @@ export class OauthMotionsService {
             null,
             new HttpHeaders().set('authorization', this.token.accessToken),
             null,
-            AuthService.getOAuthServerURL()
+            OauthService.getOAuthServerURL()
         );
     }
 
@@ -30,7 +30,7 @@ export class OauthMotionsService {
             `${this.oauthRoute}/get`,
             { id },
             new HttpHeaders().set('authorization', this.token.accessToken),
-            AuthService.getOAuthServerURL()
+            OauthService.getOAuthServerURL()
         );
     }
 }

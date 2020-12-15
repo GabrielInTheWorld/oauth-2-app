@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { Factory } from '../../../application/model-layer/core/modules/decorators';
+import { Logger } from '../../../application/services/logger';
 import { OAuthHandler } from './oauth-handler';
 import { OAuthService } from './oauth-service';
 import { TicketValidator } from '../../../express/middleware/ticket-validator';
@@ -28,7 +29,7 @@ export class OAuthRoutes {
 
   private configApiRoutes(): void {
     this.app.all(`${this.SECURE_API_PREFIX}/*`, (req, res, next) => {
-      console.log('configOAuth', req.headers);
+      Logger.log('configOAuth', req.headers);
       this.oauthValidator.validate(req, res, next);
     });
   }

@@ -30,11 +30,6 @@ export class AuthService implements AuthHandler {
     }
 
     const result = await this.userHandler.getUserByCredentials(username, password);
-    // if (!result.result) {
-    //   return { isValid: false, message: result.message };
-    // }
-
-    // return await this.ticketHandler.create(result.result);
     if (!result) {
       return { isValid: false, message: 'Not found' };
     }

@@ -1,18 +1,26 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { AuthGuard } from '../core/guards/auth.guard';
+import { LoginSiteComponent } from './login-site/login-site.component';
+import { SiteComponent } from './site.component';
 
 const routes: Routes = [
     {
         path: '',
-        pathMatch: 'full',
-        component: DashboardComponent
-    },
-    {
-        path: 'callback',
-        pathMatch: 'full',
-        component: DashboardComponent
+        component: SiteComponent,
+        children: [
+            {
+                path: '',
+                loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'sign-in',
+                pathMatch: 'full',
+                component: LoginSiteComponent
+            }
+        ]
     }
 ];
 

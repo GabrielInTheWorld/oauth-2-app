@@ -1,10 +1,9 @@
 import { DatabaseAdapter } from '../../../adapter/services/database-adapter';
 import { DatabasePort, ReplicaObject } from '../../../adapter/interfaces/database-port';
-import { Constructable, Factory, Inject } from '../core/modules/decorators';
-import { Random } from '../../../application/util/helper';
+import { Constructable, Inject } from '../core/modules/decorators';
+import { Logger } from '../../../application/services/logger';
 import { User } from '../core/models/user';
 import { UserHandler } from './user-handler';
-import { Logger } from '../../../application/services/logger';
 
 @Constructable(UserHandler)
 export class UserService extends UserHandler {
@@ -69,7 +68,7 @@ export class UserService extends UserHandler {
   }
 
   private async mockUserData(): Promise<void> {
-    console.log('mockUserData', await this.userDatabase.find('username', 'admin'));
+    Logger.debug('mockUserData', await this.userDatabase.find('username', 'admin'));
     if (!(await this.userDatabase.find<User>('username', 'admin'))[0]) {
       await this.create('admin', 'admin');
     }

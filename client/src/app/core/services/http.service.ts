@@ -54,13 +54,6 @@ export class HttpService {
         }
 
         const url = path.startsWith('/') ? `${serverURL}${path}` : `${serverURL}/${path}`;
-        // const url = path;
-
-        // if (customHeader) {
-        //     for (const header of this.defaultHeaders.keys()) {
-        //         customHeader.set(header, this.defaultHeaders.getAll(header));
-        //     }
-        // }
 
         const options = {
             observe: 'response',
@@ -70,8 +63,6 @@ export class HttpService {
             responseType: responseType as 'json'
         };
 
-        // console.log('options', options);
-
         try {
             const response = await (this.http.request<T>(method, url, options as any) as Observable<
                 HttpResponse<T>
@@ -79,7 +70,6 @@ export class HttpService {
             return response.body;
         } catch (e) {
             console.log('error', e);
-            // throw this.handleError(e);
         }
     }
 
@@ -122,6 +112,5 @@ export class HttpService {
         const location = window.location.hostname;
         const port = window.location.port;
         return `${protocol}//${location}:${port === '4200' ? '8000' : port}`;
-        // (protocol === 'https:' ? 'wss' : 'ws') + '://' + location + ':' + (port === '4200' ? '8000' : port);
     }
 }
