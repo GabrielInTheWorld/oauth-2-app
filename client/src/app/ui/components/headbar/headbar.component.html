@@ -1,6 +1,14 @@
 <mat-toolbar [color]="'primary'" class="headbar--background">
-    <ng-content select="[left-side]"></ng-content>
-    <h2>2FA Demonstrator</h2>
-    <ng-content></ng-content>
-    <ng-content select="[right-side]"></ng-content>
+    <div class="headbar--left-side">
+        <button [disabled]="!hasLeftIcon" mat-icon-button (click)="onLeftIconClicked()">
+            <mat-icon>{{ hasLeftIcon ? leftIcon : '' }}</mat-icon>
+        </button>
+    </div>
+    <h2 class="headbar--title">2FA Demonstrator</h2>
+    <div class="headbar--after-title">
+        <ng-content></ng-content>
+    </div>
+    <div class="headbar--right-side">
+        <ng-content select="[right-side]"></ng-content>
+    </div>
 </mat-toolbar>

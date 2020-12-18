@@ -2,9 +2,10 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-export interface Answer {
+export interface Answer<T = any> {
     success: boolean;
     message?: string;
+    data: T;
 }
 
 export enum HTTPMethod {

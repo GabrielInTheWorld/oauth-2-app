@@ -1,5 +1,9 @@
+import { UsersCreateDialogComponent } from './../users-create-dialog/users-create-dialog.component';
 import { Component, OnInit } from '@angular/core';
+
+import { RouterService } from './../../services/router.service';
 import { UsersService } from '../../services/users.service';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-users-list',
@@ -7,9 +11,25 @@ import { UsersService } from '../../services/users.service';
     styleUrls: ['./users-list.component.scss']
 })
 export class UsersListComponent implements OnInit {
-    public constructor(private readonly userService: UsersService) {}
+    public constructor(
+        public readonly router: RouterService,
+        private readonly dialog: MatDialog,
+        private readonly userService: UsersService
+    ) {}
 
-    public ngOnInit(): void {}
+    public ngOnInit(): void {
+        this.onSync();
+        // this.userService.getAllUsers();
+        // this.userService.getAllUsers().then(result => console.log('result', result));
+    }
 
-    public onAdd(): void {}
+    public async onAdd(): Promise<void> {
+        const dialogRef = this.dialog.open(UsersCreateDialogComponent);
+        const result = await dialogRef.afterClosed().toPromise();
+        console.log('result of dialog', result);
+    }
+
+    public onSync(): void {
+        this.userService.getAllUsers();
+    }
 }

@@ -1,5 +1,8 @@
-<app-headbar>
+<app-headbar [hasLeftIcon]="true" (clickLeftIcon)="router.goHome()">
     <ng-container right-side>
+        <button mat-icon-button (click)="onSync()">
+            <mat-icon>sync</mat-icon>
+        </button>
         <button mat-icon-button (click)="onAdd()">
             <mat-icon>add</mat-icon>
         </button>

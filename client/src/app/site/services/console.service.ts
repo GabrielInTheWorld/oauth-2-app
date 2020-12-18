@@ -89,20 +89,21 @@ export class ConsoleService {
         if (!obj) {
             return;
         }
-        let result = '{ ';
-        if (obj instanceof Map) {
-            obj.forEach((value, key) => {
-                result += this.getObjectMessageString(key, value);
-                result += '\n';
-            });
-        } else {
-            for (const key of Object.keys(obj)) {
-                result += this.getObjectMessageString(key, obj[key]);
-                result += '\n';
-            }
-        }
-        result += ' }\n';
-        return result;
+        // let result = '{ ';
+        // if (obj instanceof Map) {
+        //     obj.forEach((value, key) => {
+        //         result += this.getObjectMessageString(key, value);
+        //         result += '\n';
+        //     });
+        // } else {
+        //     for (const key of Object.keys(obj)) {
+        //         result += this.getObjectMessageString(key, obj[key]);
+        //         result += '\n';
+        //     }
+        // }
+        // result += ' }\n';
+        const result = JSON.stringify(obj);
+        return result + '\n';
     }
 
     private getObjectMessageString(key: string, value: any): string {

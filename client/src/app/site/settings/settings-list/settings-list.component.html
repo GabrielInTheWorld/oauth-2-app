@@ -1,1 +1,5 @@
-<p>settings-list works!</p>
+<app-headbar [hasLeftIcon]="true" (clickLeftIcon)="router.goHome()">
+    <ng-container right-side>
+        <app-sign-out></app-sign-out>
+    </ng-container>
+</app-headbar>

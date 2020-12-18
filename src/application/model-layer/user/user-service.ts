@@ -83,6 +83,12 @@ export class UserService extends UserHandler {
     return users[0];
   }
 
+  public async getAllUsers(): Promise<User[]> {
+    const users = await this.userDatabase.getAll<User>();
+    Logger.debug('Users', users);
+    return users.map(user => new User(user));
+  }
+
   public async hasUser(username: string, password: string): Promise<boolean> {
     const users = await this.userDatabase.find<User>('username', username);
     return users.length === 1 && users[0].password === password;

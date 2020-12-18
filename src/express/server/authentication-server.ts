@@ -1,5 +1,4 @@
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import express from 'express';
 import { createServer, Server } from 'http';
 import path from 'path';
@@ -9,6 +8,7 @@ import { Constructable } from '../../application/model-layer/core/modules/decora
 import { OAuthRoutes } from '../modules/oauth/oauth-routes';
 import { RouteHandler } from '../../express/interfaces/route-handler';
 import { Routes } from '../routes/Routes';
+import { UsersRoutes } from './../modules/users/users-routes';
 
 @Constructable(BaseServer)
 export default class AuthenticationServer extends BaseServer {
@@ -25,6 +25,7 @@ export default class AuthenticationServer extends BaseServer {
   private server: Server;
   private routes: Routes;
   private oauthRoutes: OAuthRoutes;
+  private userRoutes: UsersRoutes;
 
   private readonly CLIENT_PATH = 'client/dist/client';
 
@@ -67,6 +68,8 @@ export default class AuthenticationServer extends BaseServer {
     this.routes.initRoutes();
     this.oauthRoutes = new OAuthRoutes(this.app);
     this.oauthRoutes.initRoutes();
+    this.userRoutes = new UsersRoutes(this.app);
+    this.userRoutes.init();
   }
 
   private initClient(): void {

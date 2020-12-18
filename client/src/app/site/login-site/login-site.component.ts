@@ -11,6 +11,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 export class LoginSiteComponent extends BaseComponent implements OnInit {
     public loginForm: FormGroup;
 
+    public showSpinner = false;
+
     public constructor(private readonly fb: FormBuilder, private readonly auth: AuthService) {
         super();
     }
@@ -23,7 +25,9 @@ export class LoginSiteComponent extends BaseComponent implements OnInit {
     }
 
     public async login(): Promise<void> {
+        this.showSpinner = true;
         await this.auth.login(this.loginForm.value);
+        this.showSpinner = false;
     }
 
     public clear(): void {

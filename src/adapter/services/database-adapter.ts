@@ -150,8 +150,25 @@ export class DatabaseAdapter extends DatabasePort {
       keys: () => this.keys(prefix),
       set: <T>(key: string, obj: T) => this.set<T>(prefix, key, obj),
       get: <T>(key: string, defaultValue: any = {}) => this.get<T>(prefix, key, modelConstructor, defaultValue),
+      getAll: <T>() => this.getAll<T>(prefix),
       remove: (key: string) => this.remove(prefix, key)
     } as any;
+  }
+
+  public async getAll<T>(prefix: string, modelConstructor?: Constructor, defaultValue?: T): Promise<T[]> {
+    const docResponse = await this.doPromise(
+      'get-all',
+      this.database.allDocs({
+        include_docs: true,
+        startkey: this.getPrefix(prefix),
+        endkey: `${this.getPrefix(prefix)}\ufff0`
+      })
+    );
+    console.log(
+      'docResponse:',
+      docResponse.rows.map(row => row.doc)
+    );
+    return docResponse.rows.map(row => row.doc as any);
   }
 
   /**
@@ -171,6 +188,23 @@ export class DatabaseAdapter extends DatabasePort {
   private getPrefixedKey(prefix: string, key: string): string {
     return `${this.getPrefix(prefix)}:${key}`;
   }
+
+  //   private convertDocToObject<T>(result: PouchDB.Core.ExistingDocument<any>, modelConstructor?: Constructor): T {
+  // if (modelConstructor && result) {
+  //       Logger.debug('ModelConstructor && result');
+  //       return new modelConstructor(result) as DTO<T>;
+  //     }
+  //     if (result && (result as any)[this.getPrefixedKey(prefix, key)]) {
+  //       Logger.debug('result && key is in result');
+  //       return (result as any)[this.getPrefixedKey(prefix, key)];
+  //     }
+  //     if (result) {
+  //       Logger.debug('Only result');
+  //       return result as DTO<T>;
+  //     }
+  //     Logger.debug('Nothing');
+  //     return defaultValue as DTO<T>;
+  //   }
 
   private async doPromise<T>(name: string, promise: Promise<T>): Promise<T> {
     Logger.debug(`Fulfill promise: ${name}`);
