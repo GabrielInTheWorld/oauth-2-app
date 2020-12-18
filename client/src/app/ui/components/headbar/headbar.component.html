@@ -1,1 +1,6 @@
-<p>headbar works!</p>
+<mat-toolbar [color]="'primary'" class="headbar--background">
+    <ng-content select="[left-side]"></ng-content>
+    <h2>2FA Demonstrator</h2>
+    <ng-content></ng-content>
+    <ng-content select="[right-side]"></ng-content>
+</mat-toolbar>

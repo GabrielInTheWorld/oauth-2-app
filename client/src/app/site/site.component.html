@@ -1,2 +1,4 @@
-<app-console></app-console>
-<router-outlet></router-outlet>
+<app-console (changeWidth)="changeWidth($event)"></app-console>
+<div #wrapper class="site-component--wrapper">
+    <router-outlet></router-outlet>
+</div>

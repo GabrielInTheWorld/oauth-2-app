@@ -7,9 +7,13 @@ import RouteService from '../middleware/route-service';
 import { TicketValidator } from '../middleware/ticket-validator';
 import { Validator } from '../interfaces/validator';
 
-export class Routes {
-  private readonly SECURE_URL_PREFIX = '/api';
+export const SECURE_URL_PREFIX = '/api';
 
+export function getSecureUrl(urlPath: string): string {
+  return `${SECURE_URL_PREFIX}${urlPath}`;
+}
+
+export class Routes {
   @Factory(TicketValidator)
   private readonly validator: Validator;
 
@@ -31,7 +35,7 @@ export class Routes {
 
   private configRoutes(): void {
     this.app.all('*', (req, res, next) => this.logRequestInformation(req, res, next));
-    this.app.all(`${this.SECURE_URL_PREFIX}/*`, (request, response, next) =>
+    this.app.all(`${SECURE_URL_PREFIX}/*`, (request, response, next) =>
       this.validator.validate(request, response, next)
     );
   }
@@ -72,6 +76,6 @@ export class Routes {
   }
 
   private getSecureUrl(urlPath: string): string {
-    return `${this.SECURE_URL_PREFIX}${urlPath}`;
+    return `${SECURE_URL_PREFIX}${urlPath}`;
   }
 }

@@ -60,7 +60,9 @@ export class ConsoleService {
                 nextMessage += `Empty\n`;
                 continue;
             }
-            if (typeof message === 'object') {
+            if (Array.isArray(message)) {
+                nextMessage += this.convertArrayToString(message);
+            } else if (typeof message === 'object') {
                 nextMessage += this.convertObjectToString(message);
             } else {
                 nextMessage += `${message}\n`;
@@ -70,7 +72,20 @@ export class ConsoleService {
         this.consoleSubject.next(this.messages);
     }
 
-    private convertObjectToString(obj: object): string {
+    private convertArrayToString<T>(array: T[]): string {
+        let result = '[ ';
+        for (const item of array) {
+            if (typeof item === 'object') {
+                result += this.convertObjectToString(item);
+            } else {
+                result += item;
+            }
+        }
+        result += ' ]';
+        return result;
+    }
+
+    private convertObjectToString<T>(obj: T): string {
         if (!obj) {
             return;
         }

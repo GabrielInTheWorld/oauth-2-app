@@ -1,9 +1,19 @@
+<app-headbar>
+    <ng-container right-side>
+        <app-sign-out></app-sign-out>
+    </ng-container>
+</app-headbar>
+<app-indicator [color]="color">{{ isAuthenticated() ? 'Angemeldet' : 'Nicht angemeldet' }}</app-indicator>
+
 <app-oauth *ngIf="isOAuthActivated"></app-oauth>
 
-<mat-card class="dashboard-card flex-center">
-    <app-indicator [color]="color">{{ isAuthenticated() ? 'Angemeldet' : 'Nicht angemeldet' }}</app-indicator>
+<!-- <mat-card class="dashboard-card flex-center">
     <h1 class="underscore">2FA Demonstrator</h1>
     <button mat-button (click)="whoAmI()">Who am I</button>
     <button mat-button (click)="sayHello()">Sag Hallo</button>
     <button mat-button (click)="logout()">Abmelden</button>
-</mat-card>
+</mat-card> -->
+
+<div class="grid">
+    <app-dashboard-card *ngFor="let item of dashboardItems" [dashboardItem]="item"></app-dashboard-card>
+</div>

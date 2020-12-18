@@ -3,8 +3,20 @@ import { BaseComponent } from 'src/app/core/models/base.component';
 import { AuthTokenService } from 'src/app/core/services/auth-token.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IndicatorColor } from 'src/app/ui/components/indicator/indicator.component';
+import { DashboardItem } from '../services/dashboard.service';
 
 import { SettingsService } from '../services/settings.service';
+
+const DASHBOARD_ITEMS: DashboardItem[] = [
+    {
+        title: 'Benutzerverwaltung',
+        routerLinkSegments: ['users']
+    },
+    {
+        title: 'Einstellungen',
+        routerLinkSegments: ['settings']
+    }
+];
 
 @Component({
     selector: 'app-dashboard',
@@ -14,6 +26,10 @@ import { SettingsService } from '../services/settings.service';
 export class DashboardComponent extends BaseComponent implements OnInit, OnDestroy {
     public get color(): IndicatorColor {
         return this.auth.isAuthenticated() ? 'green' : 'red';
+    }
+
+    public get dashboardItems(): DashboardItem[] {
+        return DASHBOARD_ITEMS;
     }
 
     public get isOAuthActivated(): boolean {

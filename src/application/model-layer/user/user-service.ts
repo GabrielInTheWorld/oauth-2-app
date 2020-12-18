@@ -1,7 +1,10 @@
+import { AuthenticationTypes } from './authentication-types';
 import { DatabaseAdapter } from '../../../adapter/services/database-adapter';
 import { DatabasePort, ReplicaObject } from '../../../adapter/interfaces/database-port';
 import { Constructable, Inject } from '../core/modules/decorators';
 import { Logger } from '../../../application/services/logger';
+import { SettingsHandler } from '../../../application/interfaces/settings-handler';
+import { SettingsService } from '../../../application/services/settings-service';
 import { User } from '../core/models/user';
 import { UserHandler } from './user-handler';
 
@@ -12,9 +15,16 @@ export class UserService extends UserHandler {
   @Inject(DatabaseAdapter)
   private readonly database: DatabasePort;
 
+  @Inject(SettingsService)
+  private readonly settingsHandler: SettingsHandler;
+
   private userDatabase: ReplicaObject;
 
   private userCounter = 0;
+
+  private get defaultAuthenticationMethod(): AuthenticationTypes {
+    return this.settingsHandler.getSetting('defaultAuthenticationMethod');
+  }
 
   public constructor() {
     super();
@@ -33,9 +43,20 @@ export class UserService extends UserHandler {
 
   public async create(username: string, password: string): Promise<User> {
     const userId = ++this.userCounter;
-    const user: User = new User({ username, password, userId });
+    const user: User = new User({
+      username,
+      password,
+      userId,
+      authenticationTypes: [this.defaultAuthenticationMethod]
+    });
     await this.userDatabase.set(`${userId}`, user);
     return user;
+  }
+
+  public async update(userId: string, update: Partial<User>): Promise<void> {
+    const user = await this.getUserByUserId(userId);
+    const updatedUser = { ...user, ...update };
+    await this.userDatabase.set(userId, updatedUser);
   }
 
   public async getUserByCredentials(username: string, password: string): Promise<User | undefined> {
@@ -68,9 +89,12 @@ export class UserService extends UserHandler {
   }
 
   private async mockUserData(): Promise<void> {
-    Logger.debug('mockUserData', await this.userDatabase.find('username', 'admin'));
-    if (!(await this.userDatabase.find<User>('username', 'admin'))[0]) {
+    const user = (await this.userDatabase.find<User>('username', 'admin'))[0];
+    Logger.debug('mockUserData', user);
+    if (!user) {
       await this.create('admin', 'admin');
+    } else {
+      await this.update(user.userId, { authenticationTypes: [this.defaultAuthenticationMethod] });
     }
   }
 }

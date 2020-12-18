@@ -13,6 +13,16 @@ const routes: Routes = [
         path: 'callback',
         pathMatch: 'full',
         component: DashboardComponent
+    },
+    {
+        path: 'users',
+        pathMatch: 'full',
+        loadChildren: () => import('../users/users.module').then(m => m.UsersModule)
+    },
+    {
+        path: 'settings',
+        pathMatch: 'full',
+        loadChildren: () => import('../settings/settings.module').then(m => m.SettingsModule)
     }
 ];
 
