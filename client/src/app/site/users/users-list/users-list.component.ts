@@ -19,8 +19,6 @@ export class UsersListComponent implements OnInit {
 
     public ngOnInit(): void {
         this.onSync();
-        // this.userService.getAllUsers();
-        // this.userService.getAllUsers().then(result => console.log('result', result));
     }
 
     public async onAdd(): Promise<void> {

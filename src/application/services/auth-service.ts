@@ -1,12 +1,21 @@
 import { AuthHandler } from '../interfaces/auth-handler';
+import { AuthenticationCredential } from './../model-layer/user/authentication-credential';
+import { AuthenticationException } from '../model-layer/core/exceptions/authentication-exception';
+import { AuthenticationTypes } from './../model-layer/user/authentication-types';
+import { Authenticator } from './../util/authentication/interfaces/authenticator';
+import { BiometricsAuthenticator } from './../util/authentication/implementations/biometrics-authenticator';
 import { Factory, Inject } from '../model-layer/core/modules/decorators';
+import { EmailAuthenticator } from './../util/authentication/implementations/email-authenticator';
 import { HashingHandler } from '../interfaces/hashing-handler';
 import { HashingService } from './hashing-service';
 import { Logger } from './logger';
+import { PasswordAuthenticator } from './../util/authentication/implementations/password-authenticator';
 import { SessionService } from './session-service';
 import { Ticket, Token } from '../model-layer/core/models/ticket';
 import { TicketHandler } from '../interfaces/ticket-handler';
 import { TicketService } from './ticket-service';
+import { TotpAuthenticator } from './../util/authentication/implementations/totp-authenticator';
+import { User } from './../model-layer/core/models/user';
 import { UserHandler } from '../model-layer/user/user-handler';
 import { UserService } from '../model-layer/user/user-service';
 import { Validation } from '../interfaces/validation';
@@ -24,16 +33,22 @@ export class AuthService implements AuthHandler {
   @Inject(SessionService)
   private readonly sessionHandler: SessionService;
 
-  public async login(username: string, password: string): Promise<Validation<Ticket>> {
-    if (!username || !password) {
-      return { isValid: false, message: 'Authentication failed! Username or password is not provided!' };
-    }
+  private readonly authenticators: { [key in AuthenticationTypes]?: Authenticator } = {
+    password: new PasswordAuthenticator(),
+    totp: new TotpAuthenticator(),
+    email: new EmailAuthenticator(),
+    biometrics: new BiometricsAuthenticator()
+  };
 
-    const result = await this.userHandler.getUserByCredentials(username, password);
-    if (!result) {
-      return { isValid: false, message: 'Not found' };
+  public async login(username: string, password?: string): Promise<Validation<Ticket>> {
+    try {
+      const user = await this.userHandler.getUserByUsername(username);
+      this.checkAuthenticationTypes(user, { password });
+      return await this.ticketHandler.create(user);
+    } catch (e) {
+      Logger.error(e);
+      return { isValid: false, message: e.message };
     }
-    return await this.ticketHandler.create(result);
   }
 
   public async whoAmI(cookieAsString: string): Promise<Validation<Ticket>> {
@@ -66,5 +81,21 @@ export class AuthService implements AuthHandler {
 
   public isEquals(toHash: string, toCompare: string): boolean {
     return this.hashHandler.isEquals(toHash, toCompare);
+  }
+
+  public registerAuthenticator(type: AuthenticationTypes, value: Authenticator): void {
+    this.authenticators[type] = value;
+  }
+
+  private checkAuthenticationTypes(user: User, values: AuthenticationCredential): void {
+    if (!Object.keys(this.authenticators).length) {
+      throw new AuthenticationException('No authenticators provided!');
+    }
+    for (const key of user.authenticationTypes) {
+      if (!this.authenticators[key]) {
+        throw new AuthenticationException(`Authenticator ${key} not provided!`);
+      }
+      this.authenticators[key]?.checkAuthenticationType(user, values[key]);
+    }
   }
 }

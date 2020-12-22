@@ -1,3 +1,5 @@
+export type Digits = 6 | 7 | 8;
+
 export abstract class HashingHandler {
   /**
    * The length of a hashed value, which was hashed by this service.
@@ -23,4 +25,8 @@ export abstract class HashingHandler {
    * @returns If the hashed value of `toHash` is equals to `comparingValue`.
    */
   public abstract isEquals(toHash: string, toCompare: string): boolean;
+
+  public abstract hotp(secret: string, randomValue?: string, digits?: Digits): string;
+  public abstract totp(secret: string, t0: number, digits?: Digits): string;
+  public abstract eotp(secret: string, counter: string, digits?: Digits): string;
 }

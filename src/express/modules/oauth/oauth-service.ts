@@ -173,17 +173,22 @@ export class OAuthService implements OAuthHandler {
 
     const reqid = req.body.reqid;
     const query = this.requests[reqid];
-    const user = await this.userService.getUserByCredentials(req.body.username, req.body.password);
+    const user = await this.userService.getUserByUsername(req.body.username);
 
     console.log('user', user);
 
+    if (user.password !== req.body.password) {
+      res.send('Username or password is incorrect.');
+      return;
+    }
+
     if (!query) {
-      res.send('There is no matching request');
+      res.send('There is no matching request.');
       return;
     }
 
     if (!user) {
-      res.send('No user provided');
+      res.send('No user provided.');
       return;
     }
 

@@ -10,8 +10,6 @@ import { UserHandler } from './user-handler';
 
 @Constructable(UserHandler)
 export class UserService extends UserHandler {
-  public name = 'UserService';
-
   @Inject(DatabaseAdapter)
   private readonly database: DatabasePort;
 
@@ -59,19 +57,18 @@ export class UserService extends UserHandler {
     await this.userDatabase.set(userId, updatedUser);
   }
 
-  public async getUserByCredentials(username: string, password: string): Promise<User | undefined> {
+  public async getUserByUsername(username: string): Promise<User> {
     const users = await this.userDatabase.find<User>('username', username);
     if (users.length > 1) {
       throw new Error('Find multiple users');
     }
-    if (users[0] && users[0].password === password) {
-      return users[0];
-    } else {
+    if (!users.length) {
       throw new Error('User not found');
     }
+    return users[0];
   }
 
-  public async getUserByUserId(userId: string): Promise<User | undefined> {
+  public async getUserByUserId(userId: string): Promise<User> {
     Logger.debug(`Try to get user with userId: ${userId}`);
     const users = await this.userDatabase.find<User>('userId', userId);
     if (users.length > 1) {
