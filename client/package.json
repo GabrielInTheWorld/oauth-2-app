@@ -24,6 +24,7 @@
         "@angular/router": "^9.1.2",
         "@ngx-pwa/local-storage": "^9.0.3",
         "jsonwebtoken": "^8.5.1",
+        "qr-code-styling": "^1.2.0",
         "rxjs": "^6.5.5",
         "sha.js": "^2.4.11",
         "tslib": "^1.10.0",

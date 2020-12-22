@@ -1,0 +1,31 @@
+<div>
+    <mat-checkbox #activate>Aktiviere Multi-Faktor-Authentifizierung</mat-checkbox>
+    <ng-container *ngIf="activate.checked">
+        <mat-form-field>
+            <mat-label>Verfahren</mat-label>
+            <mat-select multiple [formControl]="twoFactorForm">
+                <mat-option *ngFor="let option of authOptions" [value]="option.key">
+                    {{ option.value }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button mat-raised-button *ngIf="twoFactorForm.dirty" (click)="confirmValues(twoFactorForm)">Bestätigen</button>
+    </ng-container>
+</div>
+
+<div>
+    <mat-form-field>
+        <mat-label>Andere sollen sich standardmäßig mit folgenden Verfahren anmelden:</mat-label>
+        <mat-select multiple [formControl]="otherFactorForm">
+            <mat-option *ngFor="let option of filteredOptions" [value]="option.key">
+                {{ option.value }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <button mat-raised-button *ngIf="otherFactorForm.dirty" (click)="confirmValues(twoFactorForm)">Bestätigen</button>
+</div>
+
+<div id="canvas"></div>
+<!-- <ng-container *ngIf="qrCode">
+    <div>{{ qrCode }}</div>
+</ng-container> -->

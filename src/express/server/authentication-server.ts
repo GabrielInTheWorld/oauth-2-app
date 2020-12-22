@@ -1,3 +1,4 @@
+import { SettingsRoutes } from './../modules/settings/settings-routes';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { createServer, Server } from 'http';
@@ -26,6 +27,7 @@ export default class AuthenticationServer extends BaseServer {
   private routes: Routes;
   private oauthRoutes: OAuthRoutes;
   private userRoutes: UsersRoutes;
+  private settingsRoutes: SettingsRoutes;
 
   private readonly CLIENT_PATH = 'client/dist/client';
 
@@ -70,6 +72,8 @@ export default class AuthenticationServer extends BaseServer {
     this.oauthRoutes.initRoutes();
     this.userRoutes = new UsersRoutes(this.app);
     this.userRoutes.init();
+    this.settingsRoutes = new SettingsRoutes(this.app);
+    this.settingsRoutes.init();
   }
 
   private initClient(): void {

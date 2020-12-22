@@ -1,11 +1,11 @@
 import { User } from './../models/user';
-import { AuthenticationTypes } from './../../user/authentication-types';
+import { AuthenticationType } from './../../user/authentication-types';
 import { BaseException } from './base-exception';
 
 export class MissingAuthenticationException extends BaseException {
   private readonly user: User;
 
-  public constructor(type: AuthenticationTypes, user: User) {
+  public constructor(type: AuthenticationType, user: User) {
     super(`Type ${type} is missing in authentication by user: ${user.userId}`);
     this.user = user;
   }

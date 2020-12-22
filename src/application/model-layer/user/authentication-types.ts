@@ -1,4 +1,4 @@
-export enum AuthenticationTypes {
+export enum AuthenticationType {
   PASSWORD = 'password',
   BIOMETRICS = 'biometrics',
   TOTP = 'totp',

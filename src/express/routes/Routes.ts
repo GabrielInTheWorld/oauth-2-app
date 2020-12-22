@@ -34,7 +34,8 @@ export class Routes {
   }
 
   private configRoutes(): void {
-    this.app.all('*', (req, res, next) => this.logRequestInformation(req, res, next));
+    this.app.all('*', (req, _, next) => this.logRequestInformation(req, next));
+    this.app.all('*', (req, res, next) => this.handleOptionsRequest(req, res, next));
     this.app.all(`${SECURE_URL_PREFIX}/*`, (request, response, next) =>
       this.validator.validate(request, response, next)
     );
@@ -68,11 +69,19 @@ export class Routes {
     );
   }
 
-  private logRequestInformation(req: express.Request, res: express.Response, next: express.NextFunction): void {
+  private logRequestInformation(req: express.Request, next: express.NextFunction): void {
     Logger.log(`${req.protocol}://${req.headers.origin}: ${req.method} -- ${req.originalUrl}`);
     Logger.debug('Expected content-size:', req.headers['content-length']);
     Logger.debug('Incoming request with the following headers:\n', req.headers);
     next();
+  }
+
+  private handleOptionsRequest(req: express.Request, res: express.Response, next: express.NextFunction): void {
+    if (req.method.toLowerCase() === 'options') {
+      res.status(200).send({ success: true, message: 'successful' });
+    } else {
+      next();
+    }
   }
 
   private getSecureUrl(urlPath: string): string {

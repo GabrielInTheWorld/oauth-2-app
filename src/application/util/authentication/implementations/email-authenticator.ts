@@ -1,5 +1,5 @@
 import { AuthenticationException } from '../../../model-layer/core/exceptions/authentication-exception';
-import { AuthenticationTypes } from '../../../model-layer/user/authentication-types';
+import { AuthenticationType } from '../../../model-layer/user/authentication-types';
 import { BaseAuthenticator } from './base-authenticator';
 import { MissingAuthenticationException } from '../../../model-layer/core/exceptions/missing-authentication-exception';
 import { User } from './../../../model-layer/core/models/user';
@@ -11,12 +11,21 @@ export class EmailAuthenticator extends BaseAuthenticator {
         user.userId,
         setInterval(() => this.prepareEmailAuthentication(user), 30)
       );
-      throw new MissingAuthenticationException(AuthenticationTypes.EMAIL, user);
+      throw new MissingAuthenticationException(AuthenticationType.EMAIL, user);
     }
     const pendingUser = this.currentlyPendingUsers.get(user.userId);
     if (pendingUser?.authenticationCredentials.email !== value) {
       throw new AuthenticationException('Email code is not provided!');
     }
+  }
+
+  public writeAuthenticationType(user: User, value?: string): User {
+    if (!value && !user.email) {
+      throw new AuthenticationException('No email-address provided!');
+    }
+    const secret = 'Hello World';
+    const updatedUser = new User({ ...user, email: value, emailSecret: secret });
+    return updatedUser;
   }
 
   private prepareEmailAuthentication(user: User): void {

@@ -1,10 +1,8 @@
-import { AuthenticationTypes } from './authentication-types';
+import { AuthenticationType } from './authentication-types';
 import { DatabaseAdapter } from '../../../adapter/services/database-adapter';
 import { DatabasePort, ReplicaObject } from '../../../adapter/interfaces/database-port';
 import { Constructable, Inject } from '../core/modules/decorators';
 import { Logger } from '../../../application/services/logger';
-import { SettingsHandler } from '../../../application/interfaces/settings-handler';
-import { SettingsService } from '../../../application/services/settings-service';
 import { User } from '../core/models/user';
 import { UserHandler } from './user-handler';
 
@@ -13,16 +11,15 @@ export class UserService extends UserHandler {
   @Inject(DatabaseAdapter)
   private readonly database: DatabasePort;
 
-  @Inject(SettingsService)
-  private readonly settingsHandler: SettingsHandler;
-
   private userDatabase: ReplicaObject;
 
   private userCounter = 0;
 
-  private get defaultAuthenticationMethod(): AuthenticationTypes {
-    return this.settingsHandler.getSetting('defaultAuthenticationMethod');
+  public get defaultAuthenticationMethod(): AuthenticationType[] {
+    return this._defaultAuthenticationMethods;
   }
+
+  private _defaultAuthenticationMethods = [AuthenticationType.PASSWORD, AuthenticationType.TOTP];
 
   public constructor() {
     super();
@@ -40,12 +37,12 @@ export class UserService extends UserHandler {
   }
 
   public async create(username: string, password: string): Promise<User> {
-    const userId = ++this.userCounter;
+    const userId = (++this.userCounter).toString();
     const user: User = new User({
       username,
       password,
       userId,
-      authenticationTypes: [this.defaultAuthenticationMethod]
+      authenticationTypes: [...this.defaultAuthenticationMethod]
     });
     await this.userDatabase.set(`${userId}`, user);
     return user;
@@ -55,6 +52,13 @@ export class UserService extends UserHandler {
     const user = await this.getUserByUserId(userId);
     const updatedUser = { ...user, ...update };
     await this.userDatabase.set(userId, updatedUser);
+  }
+
+  private async updateAll(update: Partial<User>): Promise<void> {
+    const users = await this.getAllUsers();
+    users.forEach(user => user.update({ ...update }));
+    const promises = users.map(user => this.userDatabase.set(user.userId, user));
+    await Promise.all(promises);
   }
 
   public async getUserByUsername(username: string): Promise<User> {
@@ -70,14 +74,20 @@ export class UserService extends UserHandler {
 
   public async getUserByUserId(userId: string): Promise<User> {
     Logger.debug(`Try to get user with userId: ${userId}`);
-    const users = await this.userDatabase.find<User>('userId', userId);
-    if (users.length > 1) {
-      throw new Error('Find multiple users');
-    }
-    if (!users.length) {
+    // const users = await this.userDatabase.find<User>('userId', userId);
+    const users = await this.userDatabase.get<User>(userId);
+    // if (users.length > 1) {
+    //   throw new Error('Find multiple users');
+    // }
+    // if (!users.length) {
+    //   throw new Error('User not found');
+    // }
+    // return users[0];
+    if (!users) {
+      Logger.debug('User not found');
       throw new Error('User not found');
     }
-    return users[0];
+    return users;
   }
 
   public async getAllUsers(): Promise<User[]> {
@@ -91,13 +101,22 @@ export class UserService extends UserHandler {
     return users.length === 1 && users[0].password === password;
   }
 
+  public setDefaultAuthenticationTypes(types: AuthenticationType[]): Promise<void> {
+    this._defaultAuthenticationMethods = types;
+    return this.updateAll({ authenticationTypes: types });
+  }
+
   private async mockUserData(): Promise<void> {
     const user = (await this.userDatabase.find<User>('username', 'admin'))[0];
     Logger.debug('mockUserData', user);
     if (!user) {
       await this.create('admin', 'admin');
     } else {
-      await this.update(user.userId, { authenticationTypes: [this.defaultAuthenticationMethod] });
+      if (!user.authenticationTypes || !user.authenticationTypes.length) {
+        await this.update(user.userId, {
+          authenticationTypes: [...this.defaultAuthenticationMethod]
+        });
+      }
     }
   }
 }

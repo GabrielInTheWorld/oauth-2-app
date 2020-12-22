@@ -1,7 +1,7 @@
 import { AuthHandler } from '../interfaces/auth-handler';
 import { AuthenticationCredential } from './../model-layer/user/authentication-credential';
 import { AuthenticationException } from '../model-layer/core/exceptions/authentication-exception';
-import { AuthenticationTypes } from './../model-layer/user/authentication-types';
+import { AuthenticationType } from './../model-layer/user/authentication-types';
 import { Authenticator } from './../util/authentication/interfaces/authenticator';
 import { BiometricsAuthenticator } from './../util/authentication/implementations/biometrics-authenticator';
 import { Factory, Inject } from '../model-layer/core/modules/decorators';
@@ -33,7 +33,7 @@ export class AuthService implements AuthHandler {
   @Inject(SessionService)
   private readonly sessionHandler: SessionService;
 
-  private readonly authenticators: { [key in AuthenticationTypes]?: Authenticator } = {
+  private readonly authenticators: { [key in AuthenticationType]?: Authenticator } = {
     password: new PasswordAuthenticator(),
     totp: new TotpAuthenticator(),
     email: new EmailAuthenticator(),
@@ -83,7 +83,7 @@ export class AuthService implements AuthHandler {
     return this.hashHandler.isEquals(toHash, toCompare);
   }
 
-  public registerAuthenticator(type: AuthenticationTypes, value: Authenticator): void {
+  public registerAuthenticator(type: AuthenticationType, value: Authenticator): void {
     this.authenticators[type] = value;
   }
 

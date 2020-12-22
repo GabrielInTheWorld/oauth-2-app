@@ -38,11 +38,13 @@ export class HashingService extends HashingHandler {
       (parseInt(hmacResult[offset + 3], 16) & 0xff);
     const hotp = binCode % Math.pow(10, digits);
     console.log('code', hotp);
-    return hmacResult;
+    return `${hotp}`;
   }
 
-  public totp(secret: string, t0: number, digits: Digits = 6): string {
-    const timeSteps = t0 / 30;
+  public totp(secret: string, t0: number, digits: Digits = 6, t1: number = new Date().getTime()): string {
+    console.log('t1 and t0', new Date(t0).toString(), new Date(t1).toString());
+    const timeSteps = ((t1 - t0) / 30).toFixed(0);
+    console.log('timeSteps', timeSteps, (t1 - t0) / 30);
     return this.hotp(secret, timeSteps.toString(), digits);
   }
 

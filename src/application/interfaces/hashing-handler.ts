@@ -27,6 +27,6 @@ export abstract class HashingHandler {
   public abstract isEquals(toHash: string, toCompare: string): boolean;
 
   public abstract hotp(secret: string, randomValue?: string, digits?: Digits): string;
-  public abstract totp(secret: string, t0: number, digits?: Digits): string;
+  public abstract totp(secret: string, t0: number, digits?: Digits, t1?: number): string;
   public abstract eotp(secret: string, counter: string, digits?: Digits): string;
 }

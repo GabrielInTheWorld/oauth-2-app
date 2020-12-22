@@ -3,3 +3,17 @@
         <app-sign-out></app-sign-out>
     </ng-container>
 </app-headbar>
+
+<app-two-auth-helper></app-two-auth-helper>
+
+<!-- <div>
+    <mat-checkbox #activate>Aktiviere Zwei-Faktor-Authentifizierung</mat-checkbox>
+    <ng-container *ngIf="activate.checked">
+        <mat-label>Verfahren</mat-label>
+        <mat-select multiple>
+            <mat-option *ngFor="let option of authOptions | keyvalue" [value]="option.key">
+                {{ option.value }}
+            </mat-option>
+        </mat-select>
+    </ng-container>
+</div> -->

@@ -15,4 +15,8 @@ export abstract class BaseModel<T = any> implements Collection {
   protected assign(input?: Partial<T>): T {
     return Object.assign(this, input) as T;
   }
+
+  public update(input?: Partial<T>): T {
+    return Object.assign(this, input) as T;
+  }
 }

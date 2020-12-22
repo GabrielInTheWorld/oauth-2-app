@@ -1,3 +1,4 @@
+import { Logger } from './../../../../services/logger';
 import { Type } from '../decorators';
 import Dependency from './dependency';
 
@@ -23,6 +24,10 @@ export default class Container {
   }
 
   public getService<T>(dependency: Type<T>, ...input: any[]): T {
+    if (!dependency) {
+      Logger.error('No dependency given:', dependency, input);
+      throw new Error('No dependency given: ');
+    }
     let provider = this.serviceRegistry.get(dependency) as T;
     if (!provider) {
       provider = new dependency(...input);

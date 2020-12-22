@@ -12,6 +12,7 @@ export abstract class BaseAuthenticator implements Authenticator {
   protected intervals = new Map<string, NodeJS.Timeout>();
 
   public abstract checkAuthenticationType(user: User, value?: string): void;
+  public abstract writeAuthenticationType(user: User, value?: string): any;
 
   protected registerPendingUser(user: User): void {
     this.currentlyPendingUsers.set(user.userId, user);
