@@ -34,4 +34,6 @@ export abstract class RouteHandler extends Middleware {
   public abstract clearAllSessionsExceptThemselves(request: express.Request, response: express.Response): void;
   public abstract hash(request: express.Request, response: express.Response): void;
   public abstract isEquals(request: express.Request, response: express.Response): void;
+
+  public abstract reset(request: express.Request, response: express.Response): void;
 }

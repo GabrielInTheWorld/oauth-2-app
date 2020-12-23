@@ -7,7 +7,6 @@ import { AuthenticatorProviderService } from './authenticator-provider-service';
 import { Constructable, Inject } from '../model-layer/core/modules/decorators';
 import { Logger } from './logger';
 import { SettingsHandler, SettingsObject } from '../interfaces/settings-handler';
-import { User } from './../model-layer/core/models/user';
 import { UserHandler } from '../model-layer/user/user-handler';
 import { UserService } from '../model-layer/user/user-service';
 
@@ -53,6 +52,8 @@ export class SettingsService extends SettingsHandler {
     user = this.provider.writeAuthenticationValues(user, types, initValues);
     Logger.debug('New user:', user);
     await this.userHandler.update(user.userId, user);
+    // const totp = this.provider.getTotpValidator();
+    // totp.checkAuthenticationType(user);
     const answer: Authentication.InitialValues = {};
     if (types.includes(AuthenticationType.TOTP)) {
       answer.totpUri = Authentication.otpToUri({
@@ -78,5 +79,11 @@ export class SettingsService extends SettingsHandler {
 
   public setAuthenticationMethodOfOthers(types: AuthenticationType[]): Promise<void> {
     return this.userHandler.setDefaultAuthenticationTypes(types);
+  }
+
+  public async confirmTotp(userId: string, code: string): Promise<void> {
+    const user = await this.userHandler.getUserByUserId(userId);
+    const totp = this.provider.getTotpValidator();
+    totp.checkAuthenticationType(user, code);
   }
 }

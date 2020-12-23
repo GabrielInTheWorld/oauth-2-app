@@ -9,4 +9,5 @@ export abstract class UserHandler {
   public abstract getAllUsers(): Promise<User[]>;
   public abstract hasUser(username: string, password: string): Promise<boolean>;
   public abstract setDefaultAuthenticationTypes(types: AuthenticationType[]): Promise<void>;
+  public abstract reset(): Promise<void>;
 }

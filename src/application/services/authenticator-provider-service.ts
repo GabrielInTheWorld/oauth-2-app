@@ -48,4 +48,8 @@ export class AuthenticatorProviderService extends AuthenticatorProvider {
     }
     return user;
   }
+
+  public getTotpValidator(): TotpAuthenticator {
+    return this.authenticators.totp as TotpAuthenticator;
+  }
 }

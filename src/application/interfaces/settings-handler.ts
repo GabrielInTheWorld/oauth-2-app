@@ -18,4 +18,5 @@ export abstract class SettingsHandler {
     initialValues: AuthenticationCredential
   ): Promise<Authentication.InitialValues>;
   public abstract setAuthenticationMethodOfOthers(types: AuthenticationType[]): Promise<void>;
+  public abstract confirmTotp(userId: string, code: string): Promise<void>;
 }

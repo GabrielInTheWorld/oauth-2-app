@@ -1,3 +1,4 @@
+import { AuthenticatorProviderService } from './authenticator-provider-service';
 import { AuthHandler } from '../interfaces/auth-handler';
 import { AuthenticationCredential } from './../model-layer/user/authentication-credential';
 import { AuthenticationException } from '../model-layer/core/exceptions/authentication-exception';
@@ -15,10 +16,10 @@ import { Ticket, Token } from '../model-layer/core/models/ticket';
 import { TicketHandler } from '../interfaces/ticket-handler';
 import { TicketService } from './ticket-service';
 import { TotpAuthenticator } from './../util/authentication/implementations/totp-authenticator';
-import { User } from './../model-layer/core/models/user';
 import { UserHandler } from '../model-layer/user/user-handler';
 import { UserService } from '../model-layer/user/user-service';
 import { Validation } from '../interfaces/validation';
+import { AuthenticatorProvider } from '../interfaces/authenticator-provider';
 
 export class AuthService implements AuthHandler {
   @Inject(UserService)
@@ -33,17 +34,21 @@ export class AuthService implements AuthHandler {
   @Inject(SessionService)
   private readonly sessionHandler: SessionService;
 
-  private readonly authenticators: { [key in AuthenticationType]?: Authenticator } = {
-    password: new PasswordAuthenticator(),
-    totp: new TotpAuthenticator(),
-    email: new EmailAuthenticator(),
-    biometrics: new BiometricsAuthenticator()
-  };
+  @Inject(AuthenticatorProviderService)
+  private readonly provider: AuthenticatorProvider;
+
+  // private readonly authenticators: { [key in AuthenticationType]?: Authenticator } = {
+  //   password: new PasswordAuthenticator(),
+  //   totp: new TotpAuthenticator(),
+  //   email: new EmailAuthenticator(),
+  //   biometrics: new BiometricsAuthenticator()
+  // };
 
   public async login(username: string, password?: string): Promise<Validation<Ticket>> {
     try {
       const user = await this.userHandler.getUserByUsername(username);
-      this.checkAuthenticationTypes(user, { password });
+      // this.checkAuthenticationTypes(user, { password });
+      this.provider.readAuthenticationValues(user, { password });
       return await this.ticketHandler.create(user);
     } catch (e) {
       Logger.error(e);
@@ -83,19 +88,23 @@ export class AuthService implements AuthHandler {
     return this.hashHandler.isEquals(toHash, toCompare);
   }
 
-  public registerAuthenticator(type: AuthenticationType, value: Authenticator): void {
-    this.authenticators[type] = value;
+  // public registerAuthenticator(type: AuthenticationType, value: Authenticator): void {
+  //   this.authenticators[type] = value;
+  // }
+
+  public async reset(): Promise<void> {
+    await this.userHandler.reset();
   }
 
-  private checkAuthenticationTypes(user: User, values: AuthenticationCredential): void {
-    if (!Object.keys(this.authenticators).length) {
-      throw new AuthenticationException('No authenticators provided!');
-    }
-    for (const key of user.authenticationTypes) {
-      if (!this.authenticators[key]) {
-        throw new AuthenticationException(`Authenticator ${key} not provided!`);
-      }
-      this.authenticators[key]?.checkAuthenticationType(user, values[key]);
-    }
-  }
+  // private checkAuthenticationTypes(user: User, values: AuthenticationCredential): void {
+  //   if (!Object.keys(this.authenticators).length) {
+  //     throw new AuthenticationException('No authenticators provided!');
+  //   }
+  //   for (const key of user.authenticationTypes) {
+  //     if (!this.authenticators[key]) {
+  //       throw new AuthenticationException(`Authenticator ${key} not provided!`);
+  //     }
+  //     this.authenticators[key]?.checkAuthenticationType(user, values[key]);
+  //   }
+  // }
 }

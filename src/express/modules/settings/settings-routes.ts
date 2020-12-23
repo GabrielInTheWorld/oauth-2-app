@@ -22,6 +22,7 @@ export class SettingsRoutes {
     this.app.post(getSecureUrl('/settings/set-authentication'), (req, res) =>
       this.routeService.setAuthentication(req, res)
     );
+    this.app.post(getSecureUrl('/settings/confirm-totp'), (req, res) => {});
     this.app.post(getSecureUrl('/settings/set-authentication-of-others'), (req, res) => {});
   }
 }

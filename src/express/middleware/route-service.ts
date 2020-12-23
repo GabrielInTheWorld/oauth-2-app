@@ -103,4 +103,8 @@ export default class RouteService extends RouteHandler {
     const token = response.locals['token'] as Token;
     this.sendResponse(true, 'Successful', response, 200, { userId: token.userId, sessionId: token.sessionId });
   }
+
+  public reset(req: Request, response: Response): void {
+    this.authHandler.reset().then(() => this.sendResponse(true, 'successful', response));
+  }
 }

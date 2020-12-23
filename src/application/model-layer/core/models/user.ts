@@ -1,3 +1,4 @@
+import { Logger } from './../../../services/logger';
 import { AuthenticationCredential } from './../../user/authentication-credential';
 import { AuthenticationType } from '../../user/authentication-types';
 import { BaseModel } from '../base/base-model';
@@ -50,5 +51,6 @@ export class User extends BaseModel<User> {
 
   public constructor(input?: Partial<User>) {
     super(User.COLLECTIONSTRING, input);
+    Logger.debug('new user', input, this);
   }
 }

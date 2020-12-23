@@ -19,7 +19,7 @@ export class UserService extends UserHandler {
     return this._defaultAuthenticationMethods;
   }
 
-  private _defaultAuthenticationMethods = [AuthenticationType.PASSWORD, AuthenticationType.TOTP];
+  private _defaultAuthenticationMethods = [AuthenticationType.PASSWORD];
 
   public constructor() {
     super();
@@ -74,15 +74,7 @@ export class UserService extends UserHandler {
 
   public async getUserByUserId(userId: string): Promise<User> {
     Logger.debug(`Try to get user with userId: ${userId}`);
-    // const users = await this.userDatabase.find<User>('userId', userId);
     const users = await this.userDatabase.get<User>(userId);
-    // if (users.length > 1) {
-    //   throw new Error('Find multiple users');
-    // }
-    // if (!users.length) {
-    //   throw new Error('User not found');
-    // }
-    // return users[0];
     if (!users) {
       Logger.debug('User not found');
       throw new Error('User not found');
@@ -104,6 +96,20 @@ export class UserService extends UserHandler {
   public setDefaultAuthenticationTypes(types: AuthenticationType[]): Promise<void> {
     this._defaultAuthenticationMethods = types;
     return this.updateAll({ authenticationTypes: types });
+  }
+
+  public async reset(): Promise<void> {
+    const user = new User({
+      userId: '1',
+      username: 'admin',
+      password: 'admin',
+      totpT0: undefined,
+      totpSecret: undefined,
+      authenticationTypes: this.defaultAuthenticationMethod
+    });
+    Logger.debug('Default methods:', this.defaultAuthenticationMethod, this._defaultAuthenticationMethods);
+    Logger.debug('Reset to user:', user);
+    await this.update(user.userId, user);
   }
 
   private async mockUserData(): Promise<void> {
