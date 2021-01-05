@@ -3,6 +3,7 @@ import { AuthenticationType } from '../../../model-layer/user/authentication-typ
 import { BaseAuthenticator } from './base-authenticator';
 import { MissingAuthenticationException } from '../../../model-layer/core/exceptions/missing-authentication-exception';
 import { User } from './../../../model-layer/core/models/user';
+import { Random } from '../../helper';
 
 export class EmailAuthenticator extends BaseAuthenticator {
   public checkAuthenticationType(user: User, value?: string): void {
@@ -29,7 +30,7 @@ export class EmailAuthenticator extends BaseAuthenticator {
   }
 
   private prepareEmailAuthentication(user: User): void {
-    const hotp = this.hashingHandler.hotp(user.emailSecret as string);
+    const hotp = this.hotpService.create(user.emailSecret as string, Random.randomNumber(8));
     user.authenticationCredentials.email = hotp;
     this.registerPendingUser(user);
     this.sendEmailWithHotp(user.email as string, hotp);

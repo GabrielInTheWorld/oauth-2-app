@@ -18,7 +18,7 @@ export class TotpAuthenticator extends BaseAuthenticator {
       throw new MissingAuthenticationException(AuthenticationType.TOTP, user);
     }
     const pendingUser = this.currentlyPendingUsers.get(user.userId);
-    if (pendingUser?.authenticationCredentials.totp !== value) {
+    if (!this.totpService.verify(value, pendingUser?.totpSecret as string)) {
       throw new AuthenticationException('TOTP codes do not match!');
     }
     this.doCleanUp(user.userId);
@@ -35,7 +35,7 @@ export class TotpAuthenticator extends BaseAuthenticator {
   }
 
   private prepareTotpAuthentication(user: User): void {
-    const totp = this.hashingHandler.totp(user.totpSecret as string, user.totpT0 as number);
+    const totp = this.totpService.create(user.totpSecret as string, user.totpT0 as number);
     Logger.debug('Totp:', totp);
     user.authenticationCredentials.totp = totp;
     this.registerPendingUser(user);

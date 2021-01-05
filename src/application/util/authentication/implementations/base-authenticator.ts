@@ -1,12 +1,10 @@
 import { Authenticator } from '../interfaces/authenticator';
-import { Inject } from '../../../model-layer/core/modules/decorators';
-import { HashingHandler } from '../../../interfaces/hashing-handler';
-import { HashingService } from './../../../services/hashing-service';
 import { User } from './../../../model-layer/core/models/user';
+import { Hotp, Totp } from 'final-otp';
 
 export abstract class BaseAuthenticator implements Authenticator {
-  @Inject(HashingService)
-  protected hashingHandler: HashingHandler;
+  protected hotpService = new Hotp();
+  protected totpService = new Totp();
 
   protected currentlyPendingUsers = new Map<string, User>();
   protected intervals = new Map<string, NodeJS.Timeout>();
