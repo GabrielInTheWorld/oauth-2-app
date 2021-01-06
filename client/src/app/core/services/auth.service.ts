@@ -34,8 +34,19 @@ export class AuthService {
         return this.http.get('/api/hello');
     }
 
-    public async login(credentials: { username: string; password: string }): Promise<void> {
-        this.http.post<LoginAnswer>('/login', credentials).then(() => this.router.navigate(['']));
+    public async login(credentials: { username: string; password: string }): Promise<any> {
+        const answer = await this.http.post<LoginAnswer>('/login', credentials);
+        if (answer.success) {
+            this.router.navigate(['']);
+        } else {
+            return answer;
+        }
+    }
+
+    public async confirmTotp(username: string, additional: { password?: string; totp?: string }): Promise<any> {
+        this.http
+            .post<LoginAnswer>('/confirm-login', { username, ...additional })
+            .then(() => this.router.navigate(['']));
     }
 
     public async interceptInitiating(): Promise<boolean> {

@@ -39,6 +39,7 @@ export class SettingsRouteService extends Middleware {
   }
 
   public async confirmTotp(req: Request, res: Response): Promise<void> {
+    Logger.debug('Incoming request to confirm totp', req.body);
     try {
       const token = res.locals['token'] as Token;
       const totp = req.body['totp'];

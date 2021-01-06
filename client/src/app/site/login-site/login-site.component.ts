@@ -10,8 +10,12 @@ import { AuthService } from 'src/app/core/services/auth.service';
 })
 export class LoginSiteComponent extends BaseComponent implements OnInit {
     public loginForm: FormGroup;
+    public additionalForm: FormGroup;
 
     public showSpinner = false;
+    public totpRequired = false;
+
+    private username = '';
 
     public constructor(private readonly fb: FormBuilder, private readonly auth: AuthService) {
         super();
@@ -26,14 +30,34 @@ export class LoginSiteComponent extends BaseComponent implements OnInit {
 
     public async login(): Promise<void> {
         this.showSpinner = true;
-        await this.auth.login(this.loginForm.value);
+        this.username = this.loginForm.get('username').value;
+        const failure = await this.auth.login(this.loginForm.value);
+        if (failure.reason) {
+            switch (failure.reason) {
+                case 'totp':
+                    this.prepareTotp();
+                    break;
+            }
+        }
         this.showSpinner = false;
+    }
+
+    public async sendTotp(): Promise<void> {
+        await this.auth.confirmTotp(this.username, { ...this.loginForm.value, ...this.additionalForm.value });
     }
 
     public clear(): void {
         this.loginForm.setValue({
             username: '',
-            password: ''
+            password: '',
+            totp: ''
+        });
+    }
+
+    private prepareTotp(): void {
+        this.totpRequired = true;
+        this.additionalForm = this.fb.group({
+            totp: ['', Validators.required]
         });
     }
 }

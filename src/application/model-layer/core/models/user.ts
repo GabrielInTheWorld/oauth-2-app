@@ -51,6 +51,8 @@ export class User extends BaseModel<User> {
 
   public constructor(input?: Partial<User>) {
     super(User.COLLECTIONSTRING, input);
-    Logger.debug('new user', input, this);
+    if (input?.authenticationTypes) {
+      this.authenticationTypes = input?.authenticationTypes;
+    }
   }
 }

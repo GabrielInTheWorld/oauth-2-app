@@ -1,21 +1,14 @@
+import { MissingAuthenticationException } from './../model-layer/core/exceptions/missing-authentication-exception';
 import { AuthenticatorProviderService } from './authenticator-provider-service';
 import { AuthHandler } from '../interfaces/auth-handler';
-import { AuthenticationCredential } from './../model-layer/user/authentication-credential';
-import { AuthenticationException } from '../model-layer/core/exceptions/authentication-exception';
-import { AuthenticationType } from './../model-layer/user/authentication-types';
-import { Authenticator } from './../util/authentication/interfaces/authenticator';
-import { BiometricsAuthenticator } from './../util/authentication/implementations/biometrics-authenticator';
 import { Factory, Inject } from '../model-layer/core/modules/decorators';
-import { EmailAuthenticator } from './../util/authentication/implementations/email-authenticator';
 import { HashingHandler } from '../interfaces/hashing-handler';
 import { HashingService } from './hashing-service';
 import { Logger } from './logger';
-import { PasswordAuthenticator } from './../util/authentication/implementations/password-authenticator';
 import { SessionService } from './session-service';
 import { Ticket, Token } from '../model-layer/core/models/ticket';
 import { TicketHandler } from '../interfaces/ticket-handler';
 import { TicketService } from './ticket-service';
-import { TotpAuthenticator } from './../util/authentication/implementations/totp-authenticator';
 import { UserHandler } from '../model-layer/user/user-handler';
 import { UserService } from '../model-layer/user/user-service';
 import { Validation } from '../interfaces/validation';
@@ -37,21 +30,33 @@ export class AuthService implements AuthHandler {
   @Inject(AuthenticatorProviderService)
   private readonly provider: AuthenticatorProvider;
 
-  // private readonly authenticators: { [key in AuthenticationType]?: Authenticator } = {
-  //   password: new PasswordAuthenticator(),
-  //   totp: new TotpAuthenticator(),
-  //   email: new EmailAuthenticator(),
-  //   biometrics: new BiometricsAuthenticator()
-  // };
-
   public async login(username: string, password?: string): Promise<Validation<Ticket>> {
     try {
       const user = await this.userHandler.getUserByUsername(username);
-      // this.checkAuthenticationTypes(user, { password });
       this.provider.readAuthenticationValues(user, { password });
       return await this.ticketHandler.create(user);
     } catch (e) {
       Logger.error(e);
+      if (e instanceof MissingAuthenticationException) {
+        return { isValid: false, message: e.message, reason: e.getMissingType() };
+      }
+      return { isValid: false, message: e.message };
+    }
+  }
+
+  public async confirmAdditionalCredentials(
+    username: string,
+    additional: { [key: string]: any }
+  ): Promise<Validation<Ticket>> {
+    try {
+      const user = await this.userHandler.getUserByUsername(username);
+      this.provider.readAuthenticationValues(user, additional);
+      return await this.ticketHandler.create(user);
+    } catch (e) {
+      Logger.error(e);
+      if (e instanceof MissingAuthenticationException) {
+        return { isValid: false, message: e.message, reason: e.getMissingType() };
+      }
       return { isValid: false, message: e.message };
     }
   }
@@ -88,23 +93,7 @@ export class AuthService implements AuthHandler {
     return this.hashHandler.isEquals(toHash, toCompare);
   }
 
-  // public registerAuthenticator(type: AuthenticationType, value: Authenticator): void {
-  //   this.authenticators[type] = value;
-  // }
-
   public async reset(): Promise<void> {
     await this.userHandler.reset();
   }
-
-  // private checkAuthenticationTypes(user: User, values: AuthenticationCredential): void {
-  //   if (!Object.keys(this.authenticators).length) {
-  //     throw new AuthenticationException('No authenticators provided!');
-  //   }
-  //   for (const key of user.authenticationTypes) {
-  //     if (!this.authenticators[key]) {
-  //       throw new AuthenticationException(`Authenticator ${key} not provided!`);
-  //     }
-  //     this.authenticators[key]?.checkAuthenticationType(user, values[key]);
-  //   }
-  // }
 }

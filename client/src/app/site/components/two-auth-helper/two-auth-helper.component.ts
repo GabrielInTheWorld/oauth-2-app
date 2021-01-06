@@ -19,10 +19,12 @@ export class TwoAuthHelperComponent implements OnInit {
         return this.twoFactorAuth.authOptionsAsArray.filter(option => option.key !== 'totp');
     }
 
-    public qrCode: any;
+    public qrCode: boolean;
 
     public twoFactorForm: FormControl;
     public otherFactorForm: FormControl;
+
+    public totp = '';
 
     public constructor(
         private readonly http: HttpService,
@@ -53,5 +55,16 @@ export class TwoAuthHelperComponent implements OnInit {
         });
         // this.qrCode = qrCode;
         qrCode.append(document.querySelector('#canvas'));
+        this.qrCode = true;
+    }
+
+    public async confirmTotp(): Promise<void> {
+        console.log('totp:', this.totp);
+        const answer = await this.http.post<any>('api/settings/confirm-totp', {
+            totp: this.totp
+        });
+        console.log('answer', answer);
+        this.totp = '';
+        this.qrCode = false;
     }
 }

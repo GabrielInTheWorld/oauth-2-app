@@ -45,6 +45,7 @@ export class Routes {
     this.app.get('/', (request, response) => this.routeHandler.index(request, response));
     this.app.get('/reset', (request, response) => this.routeHandler.reset(request, response));
     this.app.post('/login', (request, response) => this.routeHandler.login(request, response)); // Sends token
+    this.app.post('/confirm-login', (request, response) => this.routeHandler.login2(request, response));
     this.app.get('/callback', (req, res) => this.routeHandler.index(req, res));
     this.app.post('/who-am-i', (request, response) => this.routeHandler.whoAmI(request, response));
   }

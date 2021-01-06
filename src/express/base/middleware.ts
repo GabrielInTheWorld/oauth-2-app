@@ -10,7 +10,8 @@ export abstract class Middleware {
     message: string,
     response: Response,
     code: number = 200,
-    data: HttpData = {}
+    data: HttpData = {},
+    reason?: string
   ): void {
     if (response.locals['newToken']) {
       Logger.debug('Set a new token: ', response.locals['newToken']);
@@ -29,6 +30,7 @@ export abstract class Middleware {
     response.status(code).send({
       success,
       message,
+      reason,
       ...data
     });
   }

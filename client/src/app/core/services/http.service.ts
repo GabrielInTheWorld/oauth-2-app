@@ -70,7 +70,8 @@ export class HttpService {
             >).toPromise();
             return response.body;
         } catch (e) {
-            console.log('error', e);
+            console.log('Error while request', e);
+            return e.error;
         }
     }
 

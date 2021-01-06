@@ -18,7 +18,21 @@ export default class RouteService extends RouteHandler {
 
     const result = await this.authHandler.login(username, password);
     if (!result.result) {
-      this.sendResponse(false, result.message, response, 403);
+      this.sendResponse(false, result.message, response, 403, undefined, result.reason);
+      return;
+    }
+
+    response.locals['newToken'] = result.result.token;
+    response.locals['newCookie'] = result.result.cookie;
+    this.sendResponse(true, 'Authentication successful!', response);
+  }
+  public async login2(request: express.Request, response: express.Response): Promise<void> {
+    const username = request.body.username;
+    Logger.log(`user: ${username} -- signs in`);
+
+    const result = await this.authHandler.confirmAdditionalCredentials(username, { ...request.body });
+    if (!result.result) {
+      this.sendResponse(false, result.message, response, 403, undefined, result.reason);
       return;
     }
 
@@ -51,7 +65,9 @@ export default class RouteService extends RouteHandler {
   }
 
   public async getListOfSessions(request: express.Request, response: express.Response): Promise<void> {
-    this.sendResponse(true, 'Successful', response, 200, { sessions: await this.authHandler.getListOfSessions() });
+    this.sendResponse(true, 'Successful', response, 200, {
+      sessions: await this.authHandler.getListOfSessions()
+    });
   }
 
   public clearUserSessionById(request: express.Request, response: express.Response): void {
@@ -101,7 +117,10 @@ export default class RouteService extends RouteHandler {
 
   public authenticate(_: any, response: Response): void {
     const token = response.locals['token'] as Token;
-    this.sendResponse(true, 'Successful', response, 200, { userId: token.userId, sessionId: token.sessionId });
+    this.sendResponse(true, 'Successful', response, 200, {
+      userId: token.userId,
+      sessionId: token.sessionId
+    });
   }
 
   public reset(req: Request, response: Response): void {

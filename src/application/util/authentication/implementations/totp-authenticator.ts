@@ -8,13 +8,14 @@ import { MissingAuthenticationException } from '../../../model-layer/core/except
 import { User } from './../../../model-layer/core/models/user';
 
 export class TotpAuthenticator extends BaseAuthenticator {
+  public constructor() {
+    super();
+    console.log('TotpAuthenticator');
+  }
+
   public checkAuthenticationType(user: User, value?: string): void {
     if (!value) {
       this.prepareTotpAuthentication(user);
-      this.intervals.set(
-        user.userId,
-        setInterval(() => this.prepareTotpAuthentication(user), 30000)
-      );
       throw new MissingAuthenticationException(AuthenticationType.TOTP, user);
     }
     const pendingUser = this.currentlyPendingUsers.get(user.userId);

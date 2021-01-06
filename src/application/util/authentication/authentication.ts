@@ -1,4 +1,5 @@
-import { Digits } from './../../interfaces/hashing-handler';
+import { Digits } from 'final-otp';
+
 export namespace Authentication {
   export interface OtpValues {
     type: 'hotp' | 'totp';
@@ -12,10 +13,6 @@ export namespace Authentication {
 
   export interface InitialValues {
     emailSecret?: string;
-    // totpSecret?: string
-    // totpT0?: number
-    // eotpSecret?: string
-    // eotpCounter?: number
     hotpUri?: string;
     totpUri?: string;
     password?: string;

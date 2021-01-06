@@ -26,6 +26,8 @@
 </div>
 
 <div id="canvas"></div>
-<!-- <ng-container *ngIf="qrCode">
-    <div>{{ qrCode }}</div>
-</ng-container> -->
+<ng-container *ngIf="qrCode">
+    <div>Bitte bestätige durch Eingabe des dir angezeigten sechsstelligen Codes:</div>
+    <input matInput [(ngModel)]="totp" />
+    <button mat-button (click)="confirmTotp()">Bestätigen</button>
+</ng-container>
