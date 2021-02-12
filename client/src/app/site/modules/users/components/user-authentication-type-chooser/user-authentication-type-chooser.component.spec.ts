@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { UserAuthenticationTypeChooserComponent } from './user-authentication-type-chooser.component';
 
@@ -6,7 +6,7 @@ describe('UserAuthenticationTypeChooserComponent', () => {
   let component: UserAuthenticationTypeChooserComponent;
   let fixture: ComponentFixture<UserAuthenticationTypeChooserComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ UserAuthenticationTypeChooserComponent ]
     })

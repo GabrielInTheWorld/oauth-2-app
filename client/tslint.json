@@ -1,6 +1,12 @@
 {
     "extends": "tslint:recommended",
     "rules": {
+      "align": {
+        "options": [
+          "parameters",
+          "statements"
+        ]
+      },
         "array-type": [true, "array"],
         "arrow-return-shorthand": true,
         "arrow-parens": false,
@@ -15,9 +21,24 @@
             "severity": "warn"
         },
         "directive-class-suffix": true,
-        "directive-selector": [true, "attribute", "app", "camelCase"],
+        "directive-selector": [
+          true,
+          "attribute",
+          "app",
+          "camelCase"
+        ],
+        "eofline": true,
         "forin": false,
-        "import-blacklist": [true, "rxjs/Rx"],
+        "import-blacklist": [
+          true,
+          "rxjs/Rx"
+        ],
+        "import-spacing": true,
+        "indent": {
+          "options": [
+            "spaces"
+          ]
+        },
         "interface-name": false,
         "interface-over-type-literal": true,
         "jsdoc-format": true,
@@ -100,6 +121,20 @@
         "prefer-while": true,
         "quotemark": [true, "single"],
         "radix": true,
+        "semicolon": {
+          "options": [
+            "always"
+          ]
+        },
+        "space-before-function-paren": {
+          "options": {
+            "anonymous": "never",
+            "asyncArrow": "always",
+            "constructor": "never",
+            "method": "never",
+            "named": "never"
+          }
+        },
         "trailing-comma": false,
         "triple-equals": [true, "allow-null-check"],
 
@@ -113,6 +148,24 @@
             "object-destructuring",
             "array-destructuring"
         ],
+        "typedef-whitespace": {
+          "options": [
+            {
+              "call-signature": "nospace",
+              "index-signature": "nospace",
+              "parameter": "nospace",
+              "property-declaration": "nospace",
+              "variable-declaration": "nospace"
+            },
+            {
+              "call-signature": "onespace",
+              "index-signature": "onespace",
+              "parameter": "onespace",
+              "property-declaration": "onespace",
+              "variable-declaration": "onespace"
+            }
+          ]
+        },
         "unified-signatures": true,
         "use-lifecycle-interface": true,
         "use-pipe-transform-interface": true,
