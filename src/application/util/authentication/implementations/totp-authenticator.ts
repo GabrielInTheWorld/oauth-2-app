@@ -10,7 +10,6 @@ import { User } from './../../../model-layer/core/models/user';
 export class TotpAuthenticator extends BaseAuthenticator {
   public constructor() {
     super();
-    console.log('TotpAuthenticator');
   }
 
   public checkAuthenticationType(user: User, value?: string): void {

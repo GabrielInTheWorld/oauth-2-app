@@ -11,6 +11,17 @@ export class SettingsRouteService extends Middleware {
   @Inject(SettingsService)
   private readonly settingsHandler: SettingsHandler;
 
+  public async getAuthentication(req: Request, res: Response): Promise<void> {
+    try {
+      const accessToken = res.locals['token'] as Token;
+      const authenticationTypes = await this.settingsHandler.getAuthenticationMethods(accessToken.userId);
+      return this.sendResponse(true, 'successful', res, 200, { authenticationTypes });
+    } catch (e) {
+      Logger.error(e);
+      this.sendResponse(false, e, res, 401);
+    }
+  }
+
   public async setAuthentication(req: Request, res: Response): Promise<void> {
     try {
       const accessToken = res.locals['token'] as Token;

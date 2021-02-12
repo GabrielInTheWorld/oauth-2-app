@@ -44,9 +44,12 @@ export class AuthService {
     }
 
     public async confirmTotp(username: string, additional: { password?: string; totp?: string }): Promise<any> {
-        this.http
-            .post<LoginAnswer>('/confirm-login', { username, ...additional })
-            .then(() => this.router.navigate(['']));
+        const answer = await this.http.post<LoginAnswer>('/confirm-login', { username, ...additional });
+        if (answer.success) {
+            this.router.navigate(['']);
+        } else {
+            return answer;
+        }
     }
 
     public async interceptInitiating(): Promise<boolean> {

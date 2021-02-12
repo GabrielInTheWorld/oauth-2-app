@@ -1,3 +1,5 @@
+import { WebsocketHandler } from 'reactive-websocket';
+
 import { AuthenticationType } from './authentication-types';
 import { DatabaseAdapter } from '../../../adapter/services/database-adapter';
 import { DatabasePort, ReplicaObject } from '../../../adapter/interfaces/database-port';
@@ -6,10 +8,27 @@ import { Logger } from '../../../application/services/logger';
 import { User } from '../core/models/user';
 import { UserHandler } from './user-handler';
 
+interface UserDto {
+  // readonly databaseKey?: string;
+  readonly username: string;
+  readonly userId: string;
+  /**
+   * An email-address of a user.
+   */
+  readonly email?: string;
+  /**
+   * Property to determine, with which types a user wants to authenticate.
+   */
+  authenticationTypes: AuthenticationType[];
+}
+
 @Constructable(UserHandler)
 export class UserService extends UserHandler {
   @Inject(DatabaseAdapter)
   private readonly database: DatabasePort;
+
+  @Inject(WebsocketHandler)
+  private readonly websocket: WebsocketHandler;
 
   private userDatabase: ReplicaObject;
 
@@ -34,6 +53,7 @@ export class UserService extends UserHandler {
     const keys = await this.userDatabase.keys();
     this.userCounter = keys.length;
     this.mockUserData();
+    this.initWebsocketEvents();
   }
 
   public async create(username: string, password: string): Promise<User> {
@@ -88,6 +108,20 @@ export class UserService extends UserHandler {
     return users.map(user => new User(user));
   }
 
+  private async getAllUsersForClient(): Promise<UserDto[]> {
+    const users = await this.getAllUsers();
+    return users.map(user => ({
+      authenticationTypes: user.authenticationTypes,
+      username: user.username,
+      userId: user.userId
+    }));
+  }
+
+  private async sendAllUsers(): Promise<void> {
+    const users = await this.getAllUsersForClient();
+    this.websocket.broadcastAll({ event: 'all-users', data: [...users] });
+  }
+
   public async hasUser(username: string, password: string): Promise<boolean> {
     const users = await this.userDatabase.find<User>('username', username);
     return users.length === 1 && users[0].password === password;
@@ -105,11 +139,26 @@ export class UserService extends UserHandler {
       password: 'admin',
       totpT0: undefined,
       totpSecret: undefined,
-      authenticationTypes: this.defaultAuthenticationMethod
+      authenticationTypes: [AuthenticationType.PASSWORD]
     });
     Logger.debug('Default methods:', this.defaultAuthenticationMethod, this._defaultAuthenticationMethods);
     Logger.debug('Reset to user:', user);
     await this.update(user.userId, user);
+  }
+
+  private initWebsocketEvents(): void {
+    this.websocket.fromEvent('all-users').subscribe(() => {
+      this.sendAllUsers();
+    });
+    this.websocket.fromEvent<any>('get-user').subscribe(async message => {
+      const id = message.data;
+      console.log('Received event: get-user', id);
+      this.websocket.broadcastAll({ event: 'get-user', data: await this.getUserByUserId(id) });
+    });
+    this.websocket.fromEvent<Partial<User>>('create-user').subscribe(newUser => {
+      console.log('Received event: create-user: ', newUser);
+      this.sendAllUsers();
+    });
   }
 
   private async mockUserData(): Promise<void> {

@@ -46,7 +46,7 @@ export default class RouteService extends RouteHandler {
     const result = await this.authHandler.whoAmI(cookieAsString);
     if (!result.isValid || (result.isValid && !result.result)) {
       response.clearCookie(AuthHandler.COOKIE_NAME);
-      this.sendResponse(true, 'anonymous', response);
+      this.sendResponse(false, 'anonymous', response);
       return;
     }
     response.locals['newToken'] = result.result?.token;

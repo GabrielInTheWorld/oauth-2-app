@@ -12,6 +12,7 @@ export abstract class SettingsHandler {
   public abstract setSetting(key: keyof SettingsObject | string, value: any): void;
   public abstract getSetting(key: keyof SettingsObject | string): any;
   public abstract getDefaultSettings(): SettingsObject;
+  public abstract getAuthenticationMethods(userId: number): Promise<AuthenticationType[]>;
   public abstract setAuthenticationMethod(
     userId: number,
     authenticationTypes: AuthenticationType[],

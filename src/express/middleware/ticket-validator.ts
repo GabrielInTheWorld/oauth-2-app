@@ -28,9 +28,9 @@ export class TicketValidator extends Validator {
     Logger.debug(`tokenEncoded: ${tokenEncoded}`);
     Logger.debug(`cookieEncoded: ${cookieEncoded}`);
     Logger.debug(`answer:`, answer);
-    if (this.isAnonymous(answer)) {
-      return this.sendResponse(answer.isValid, answer.reason, response, 200, answer.result);
-    }
+    // if (this.isAnonymous(answer)) {
+    //   return this.sendResponse(answer.isValid, answer.reason, response, 200, answer.result);
+    // }
     if (answer.isValid) {
       response.locals['token'] = answer.result;
       if (answer.header && answer.header.token) {
@@ -42,7 +42,7 @@ export class TicketValidator extends Validator {
     }
   }
 
-  private isAnonymous(token: Validation<Token>): boolean {
-    return !!token.result && token.result.userId === 0;
-  }
+  // private isAnonymous(token: Validation<Token>): boolean {
+  //   return !!token.result && token.result.userId === 0;
+  // }
 }

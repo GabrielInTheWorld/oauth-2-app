@@ -8,6 +8,7 @@ import { MaterialModule } from './library/material.module';
 import { PaperComponent } from './components/paper/paper.component';
 import { GridComponent } from './components/grid/grid.component';
 import { CellComponent } from './components/cell/cell.component';
+import { QrCodeComponent } from './components/qr-code/qr-code.component';
 
 const components = [
     IndicatorComponent,
@@ -15,7 +16,8 @@ const components = [
     HeadbarComponent,
     PaperComponent,
     GridComponent,
-    CellComponent
+    CellComponent,
+    QrCodeComponent
 ];
 
 @NgModule({

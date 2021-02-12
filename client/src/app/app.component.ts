@@ -1,3 +1,4 @@
+import { SocketService } from './core/services/socket.service';
 import { Component } from '@angular/core';
 
 import { ConsoleService } from './site/services/console.service';
@@ -10,5 +11,5 @@ import { ConsoleService } from './site/services/console.service';
 export class AppComponent {
     public title = 'client';
 
-    public constructor(consoleService: ConsoleService) {}
+    public constructor(_consoleService: ConsoleService, _socket: SocketService) {}
 }

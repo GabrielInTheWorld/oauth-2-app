@@ -102,8 +102,13 @@ export class ConsoleService {
         //     }
         // }
         // result += ' }\n';
-        const result = JSON.stringify(obj);
-        return result + '\n';
+        try {
+            const result = JSON.stringify(obj);
+            return result + '\n';
+        } catch (e) {
+            // this.printToConsole(e);
+            return '\n\r';
+        }
     }
 
     private getObjectMessageString(key: string, value: any): string {

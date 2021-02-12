@@ -1,0 +1,36 @@
+<app-loading-spinner *ngIf="showSpinner"></app-loading-spinner>
+
+<!-- <app-headbar></app-headbar> -->
+<div class="login-site--wrapper flex-center">
+    <form [formGroup]="loginForm" *ngIf="!totpRequired">
+        <div>
+            <mat-form-field>
+                <input matInput formControlName="username" placeholder="Username" />
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field>
+                <input matInput formControlName="password" placeholder="Password" />
+            </mat-form-field>
+        </div>
+        <div>
+            <button mat-raised-button color="primary" [disabled]="loginForm.invalid" (click)="login()">Anmelden</button>
+            <button mat-button (click)="clear()">Abbruch</button>
+        </div>
+    </form>
+    <div *ngIf="totpRequired">
+        Zur Bestätigung Ihrer Identität geben Sie den sechsstelligen Code Ihrer Smartphone-App ein
+        <form [formGroup]="additionalForm">
+            <mat-form-field>
+                <input matInput formControlName="totp" placeholder="Sechsstelliger Code" />
+                <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+            </mat-form-field>
+        </form>
+        <div>
+            <button mat-raised-button color="primary" [disabled]="additionalForm.invalid" (click)="sendTotp()">
+                Bestätigen
+            </button>
+            <button mat-button (click)="clear()">Abbruch</button>
+        </div>
+    </div>
+</div>

@@ -9,6 +9,7 @@ import { Logger } from './logger';
 import { SettingsHandler, SettingsObject } from '../interfaces/settings-handler';
 import { UserHandler } from '../model-layer/user/user-handler';
 import { UserService } from '../model-layer/user/user-service';
+import { WebsocketHandler } from 'reactive-websocket';
 
 @Constructable(SettingsHandler)
 export class SettingsService extends SettingsHandler {
@@ -18,9 +19,23 @@ export class SettingsService extends SettingsHandler {
   @Inject(AuthenticatorProviderService)
   private readonly provider: AuthenticatorProvider;
 
+  @Inject(WebsocketHandler)
+  private readonly websocket: WebsocketHandler;
+
   private readonly defaultSettings: SettingsObject = {
     defaultAuthenticationMethod: AuthenticationType.PASSWORD
   };
+
+  public constructor() {
+    super();
+    this.websocket.fromEvent('all-authentication-types').subscribe(event => {
+      console.log('event in settings: ', event);
+      this.websocket.broadcastAll({
+        event: 'all-authentication-types',
+        data: this.getAvailableAuthenticationMethods()
+      });
+    });
+  }
 
   public setSetting(key: keyof SettingsObject | string, value: any): void {
     this.defaultSettings[key] = value;
@@ -32,6 +47,15 @@ export class SettingsService extends SettingsHandler {
 
   public getDefaultSettings(): SettingsObject {
     return this.defaultSettings;
+  }
+
+  public getAvailableAuthenticationMethods(): AuthenticationType[] {
+    return this.provider.getAvailableAuthenticationTypes();
+  }
+
+  public async getAuthenticationMethods(userId: number): Promise<AuthenticationType[]> {
+    const user = await this.userHandler.getUserByUserId(userId.toString());
+    return user.authenticationTypes;
   }
 
   public async setAuthenticationMethod(

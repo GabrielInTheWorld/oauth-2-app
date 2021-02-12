@@ -8,10 +8,8 @@ import { User } from '../model-layer/core/models/user';
 import { AuthenticationCredential } from '../model-layer/user/authentication-credential';
 import { AuthenticationType } from '../model-layer/user/authentication-types';
 import { Authenticator } from '../util/authentication/interfaces/authenticator';
-import { Constructable } from '../model-layer/core/modules/decorators';
 
-@Constructable(AuthenticatorProvider)
-export class AuthenticatorProviderService extends AuthenticatorProvider {
+export class AuthenticatorProviderService implements AuthenticatorProvider {
   private readonly authenticators: { [key in AuthenticationType]?: Authenticator } = {
     password: new PasswordAuthenticator(),
     totp: new TotpAuthenticator(),
@@ -47,6 +45,10 @@ export class AuthenticatorProviderService extends AuthenticatorProvider {
       user = this.authenticators[key]?.writeAuthenticationType(user, initValues[key]);
     }
     return user;
+  }
+
+  public getAvailableAuthenticationTypes(): AuthenticationType[] {
+    return Object.keys(this.authenticators) as AuthenticationType[];
   }
 
   public getTotpValidator(): TotpAuthenticator {

@@ -37,11 +37,11 @@ export class TicketService extends TicketHandler {
     return this.keyHandler.getTokenKey();
   }
 
-  private readonly anonymousMessage = {
-    isValid: true,
-    message: 'Successful',
-    reason: 'anonymous'
-  };
+  // private readonly anonymousMessage = {
+  //   isValid: true,
+  //   message: 'Successful',
+  //   reason: 'anonymous'
+  // };
 
   public verifyCookie(cookieAsString: string): Validation<Cookie> {
     try {
@@ -88,10 +88,10 @@ export class TicketService extends TicketHandler {
   }
 
   public async refresh(cookieAsString?: string): Promise<Validation<Ticket>> {
-    if (!cookieAsString) {
-      return this.anonymousMessage; // login as guest
-    }
-    if (!this.isBearer(cookieAsString)) {
+    // if (!cookieAsString) {
+    //   return this.anonymousMessage; // login as guest
+    // }
+    if (!cookieAsString || !this.isBearer(cookieAsString)) {
       return { isValid: false, message: 'Wrong token' };
     }
     const result = this.verifyCookie(cookieAsString.slice(7));
@@ -132,7 +132,7 @@ export class TicketService extends TicketHandler {
     } catch (e) {
       Logger.debug('Validation failed: ', e);
       if (e instanceof NullPointerException) {
-        return { ...this.anonymousMessage, result: anonymous };
+        return { isValid: false, message: e.message };
       }
       if (e instanceof BaseException || e instanceof Error) {
         return { isValid: false, message: e.message };

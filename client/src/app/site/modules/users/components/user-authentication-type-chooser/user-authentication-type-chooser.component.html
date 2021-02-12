@@ -1,0 +1,15 @@
+<form class="auth-type-form" [formGroup]="authTypeForm">
+    <mat-form-field *ngIf="selectedAuthenticationTypes.includes('password')">
+        <mat-label>Passwort*</mat-label>
+        <input matInput formControlName="password" type="password" />
+    </mat-form-field>
+    <mat-form-field *ngIf="selectedAuthenticationTypes.includes('email')">
+        <mat-label>E-Mail-Adresse*</mat-label>
+        <input matInput formControlName="email" />
+    </mat-form-field>
+    <mat-form-field *ngIf="selectedAuthenticationTypes.includes('totp')">
+        <app-qr-code></app-qr-code>
+        <mat-label>Bestätigungs-Code</mat-label>
+        <input matInput formControlName="totp" />
+    </mat-form-field>
+</form>

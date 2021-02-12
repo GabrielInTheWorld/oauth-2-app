@@ -19,6 +19,9 @@ export class SettingsRoutes {
   }
 
   private initRoutes(): void {
+    this.app.post(getSecureUrl('/settings/get-authentication'), (req, res) =>
+      this.routeService.getAuthentication(req, res)
+    );
     this.app.post(getSecureUrl('/settings/set-authentication'), (req, res) =>
       this.routeService.setAuthentication(req, res)
     );

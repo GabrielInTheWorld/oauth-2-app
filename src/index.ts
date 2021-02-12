@@ -1,26 +1,33 @@
+import { WebsocketHandler } from 'reactive-websocket';
 import 'reflect-metadata';
 
 import AuthenticationServer from './express/server/authentication-server';
 import { BaseServer } from './express/interfaces/base-server';
-import { Factory } from './application/model-layer/core/modules/decorators';
+import { Factory, Inject } from './application/model-layer/core/modules/decorators';
 import { Logger } from './application/services/logger';
 
-export class Server {
+export class Application {
   public static readonly PORT: number = parseInt(process.env.PORT || '', 10) || 8000;
 
   public get port(): number {
-    return Server.PORT;
+    return Application.PORT;
   }
 
-  @Factory(AuthenticationServer, { port: Server.PORT })
+  @Factory(AuthenticationServer, { port: Application.PORT })
   private readonly httpServer: BaseServer;
 
+  @Inject(WebsocketHandler)
+  private readonly websocket: WebsocketHandler;
+
   public start(): void {
-    this.httpServer.getServer().listen(Server.PORT, () => {
-      Logger.log(`Server is running on port ${Server.PORT}`);
+    const server = this.httpServer.getServer().listen(Application.PORT, () => {
+      Logger.log(`Server is running on port ${Application.PORT}`);
+    });
+    this.websocket.initWebsocket({
+      httpServer: server
     });
   }
 }
 
-const server = new Server();
-server.start();
+const app = new Application();
+app.start();

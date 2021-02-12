@@ -1,5 +1,12 @@
 <mat-toolbar [color]="'primary'" class="headbar--background">
     <div class="headbar--left-side">
+        <button
+            mat-icon-button
+            (click)="toggleConsole()"
+            [matTooltip]="isConsoleOpen ? 'Schließe Konsole' : 'Öffne Konsole'"
+        >
+            <mat-icon>announcement</mat-icon>
+        </button>
         <button [disabled]="!hasLeftIcon" mat-icon-button (click)="onLeftIconClicked()">
             <mat-icon>{{ hasLeftIcon ? leftIcon : '' }}</mat-icon>
         </button>

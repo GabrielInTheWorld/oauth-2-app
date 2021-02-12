@@ -1,33 +1,28 @@
-<div>
-    <mat-checkbox #activate>Aktiviere Multi-Faktor-Authentifizierung</mat-checkbox>
-    <ng-container *ngIf="activate.checked">
-        <mat-form-field>
-            <mat-label>Verfahren</mat-label>
-            <mat-select multiple [formControl]="twoFactorForm">
-                <mat-option *ngFor="let option of authOptions" [value]="option.key">
-                    {{ option.value }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <button mat-raised-button *ngIf="twoFactorForm.dirty" (click)="confirmValues(twoFactorForm)">Bestätigen</button>
-    </ng-container>
-</div>
-
-<div>
-    <mat-form-field>
-        <mat-label>Andere sollen sich standardmäßig mit folgenden Verfahren anmelden:</mat-label>
-        <mat-select multiple [formControl]="otherFactorForm">
-            <mat-option *ngFor="let option of filteredOptions" [value]="option.key">
-                {{ option.value }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-    <button mat-raised-button *ngIf="otherFactorForm.dirty" (click)="confirmValues(twoFactorForm)">Bestätigen</button>
+<div class="flex-center padding-8">
+    <div>
+        <ng-container *ngIf="true">
+            <h3>Derzeit zur Authentifizierung genutzte Verfahren:</h3>
+            <mat-form-field>
+                <mat-label>Gewählte Verfahren</mat-label>
+                <mat-select multiple [formControl]="twoFactorForm" required>
+                    <mat-option *ngFor="let option of authOptions" [value]="option.key">
+                        {{ option.value }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="twoFactorForm.invalid">Mindestens ein Verfahren muss aktiviert sein!</mat-error>
+            </mat-form-field>
+            <div>
+                <button
+                    mat-raised-button
+                    *ngIf="twoFactorForm.dirty"
+                    [disabled]="twoFactorForm.invalid"
+                    (click)="confirmValues(twoFactorForm)"
+                >
+                    Bestätigen
+                </button>
+            </div>
+        </ng-container>
+    </div>
 </div>
 
 <div id="canvas"></div>
-<ng-container *ngIf="qrCode">
-    <div>Bitte bestätige durch Eingabe des dir angezeigten sechsstelligen Codes:</div>
-    <input matInput [(ngModel)]="totp" />
-    <button mat-button (click)="confirmTotp()">Bestätigen</button>
-</ng-container>

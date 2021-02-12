@@ -1,3 +1,4 @@
+import { HeadbarService } from './../../services/headbar.service';
 import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
 
 @Component({
@@ -18,7 +19,11 @@ export class HeadbarComponent implements OnInit {
     @Output()
     public add = new EventEmitter<void>();
 
-    public constructor() {}
+    public get isConsoleOpen(): boolean {
+        return this.headbarService.isConsoleOpen;
+    }
+
+    public constructor(private headbarService: HeadbarService) {}
 
     public ngOnInit(): void {
         // console.log('Observers', this.add.observers);
@@ -26,5 +31,9 @@ export class HeadbarComponent implements OnInit {
 
     public onLeftIconClicked(): void {
         this.clickLeftIcon.emit();
+    }
+
+    public toggleConsole(): void {
+        this.headbarService.nextSate(!this.headbarService.isConsoleOpen);
     }
 }

@@ -20,6 +20,7 @@ export class TwoAuthHelperComponent implements OnInit {
     }
 
     public qrCode: boolean;
+    public authenticationTypes = [];
 
     public twoFactorForm: FormControl;
     public otherFactorForm: FormControl;
@@ -27,29 +28,41 @@ export class TwoAuthHelperComponent implements OnInit {
     public totp = '';
 
     public constructor(
-        private readonly http: HttpService,
+        // private readonly http: HttpService,
         private readonly twoFactorAuth: TwoFactorAuthService,
         private readonly fb: FormBuilder
     ) {}
 
     public ngOnInit(): void {
-        this.twoFactorForm = this.fb.control([['password'], Validators.required]);
-        this.otherFactorForm = this.fb.control([['password'], Validators.required]);
-        this.twoFactorForm.valueChanges.subscribe(value => console.log('value', value));
-        console.log('onInit', this.twoFactorForm.value);
+        this.getDefaultAuthenticationMethods().then(authenticationTypes => {
+            this.authenticationTypes = authenticationTypes;
+            this.twoFactorForm = this.fb.control([[], Validators.required]);
+            this.twoFactorForm.setValue(authenticationTypes);
+            this.otherFactorForm = this.fb.control([['password'], Validators.required]);
+            this.twoFactorForm.valueChanges.subscribe(value => console.log('value', value));
+            console.log('onInit', this.twoFactorForm.value);
+        });
         // this.twoFactorForm = this.fb.group({
         //     authFactors: [['password'], Validators.required]
         // });
     }
 
+    public async getDefaultAuthenticationMethods(): Promise<string[]> {
+        const methods = await this.twoFactorAuth.getAuthenticationMethods();
+        console.log('methods', methods);
+        // this.authenticationTypes = methods.authenticationTypes;
+        return methods.authenticationTypes;
+    }
+
     public async confirmValues(formControl: FormControl): Promise<void> {
         console.log('formControl', formControl.value);
-        const answer = await this.http.post<any>('api/settings/set-authentication', {
-            authenticationTypes: formControl.value,
-            values: {}
-        });
-        console.log('answer', answer);
-        const totpUri = answer.totpUri;
+        // const answer = await this.http.post<any>('api/settings/set-authentication', {
+        //     authenticationTypes: formControl.value,
+        //     values: {}
+        // });
+        // console.log('answer', answer);
+        // const totpUri = answer.totpUri;
+        const totpUri = this.twoFactorAuth.confirmNextAuthenticationMethods(formControl.value);
         const qrCode: HTMLElement = new QrCodeStyling({
             data: totpUri
         });
@@ -58,13 +71,13 @@ export class TwoAuthHelperComponent implements OnInit {
         this.qrCode = true;
     }
 
-    public async confirmTotp(): Promise<void> {
-        console.log('totp:', this.totp);
-        const answer = await this.http.post<any>('api/settings/confirm-totp', {
-            totp: this.totp
-        });
-        console.log('answer', answer);
-        this.totp = '';
-        this.qrCode = false;
-    }
+    // public async confirmTotp(): Promise<void> {
+    //     console.log('totp:', this.totp);
+    //     const answer = await this.http.post<any>('api/settings/confirm-totp', {
+    //         totp: this.totp
+    //     });
+    //     console.log('answer', answer);
+    //     this.totp = '';
+    //     this.qrCode = false;
+    // }
 }
