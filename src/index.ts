@@ -1,5 +1,5 @@
-import { WebsocketHandler } from 'reactive-websocket';
 import 'reflect-metadata';
+import { WebsocketHandler } from 'reactive-websocket';
 
 import AuthenticationServer from './express/server/authentication-server';
 import { BaseServer } from './express/interfaces/base-server';

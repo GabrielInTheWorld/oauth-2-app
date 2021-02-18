@@ -1,5 +1,7 @@
-import { User } from './../../models/user';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+
+import { User } from './../../models/user';
+import { AuthenticationTypeVerboseName } from '../../services/users.service';
 
 @Component({
     selector: 'app-user-list',
@@ -11,12 +13,16 @@ export class UserListComponent implements OnInit {
     public users: User[] = [];
 
     @Output()
-    public onEditUser = new EventEmitter<User>();
+    public editUser = new EventEmitter<User>();
 
     @Output()
-    public onDeleteUser = new EventEmitter<User>();
+    public deleteUser = new EventEmitter<User>();
 
     public constructor() {}
 
     public ngOnInit(): void {}
+
+    public getAuthenticationTypeVerboseName(type: string): string {
+        return AuthenticationTypeVerboseName[type];
+    }
 }

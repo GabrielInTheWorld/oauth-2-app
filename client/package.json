@@ -23,6 +23,7 @@
     "@angular/platform-browser-dynamic": "^11.2.0",
     "@angular/router": "^11.2.0",
     "@ngx-pwa/local-storage": "^9.0.3",
+    "base-coding": "^1.0.3",
     "jsonwebtoken": "^8.5.1",
     "qr-code-styling": "^1.2.0",
     "rxjs": "^6.5.5",

@@ -9,6 +9,7 @@ export interface ReplicaObject {
   getAll: <T>() => Promise<T[]>;
   remove: (key: string) => Promise<boolean>;
   find: <T>(fieldKey: keyof T, fieldValue: any) => Promise<T[]>;
+  clear: () => Promise<void>;
 }
 
 export abstract class DatabasePort extends InjectableClass {
@@ -20,6 +21,7 @@ export abstract class DatabasePort extends InjectableClass {
   public abstract getAll<T>(prefix: string, modelConstructor?: Constructor, defaultValue?: T): Promise<T[]>;
   public abstract remove(prefix: string, key: string): Promise<boolean>;
   public abstract find<T>(fieldKey: keyof T, fieldValue: any): Promise<T[]>;
+  public abstract clear(): Promise<void>;
   public abstract getReplicaObject(
     prefix: string,
     modelConstructor?: new <T>(...args: any) => T,

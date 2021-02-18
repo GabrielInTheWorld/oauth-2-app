@@ -38,7 +38,7 @@ export class AuthService implements AuthHandler {
     } catch (e) {
       Logger.error(e);
       if (e instanceof MissingAuthenticationException) {
-        return { isValid: false, message: e.message, reason: e.getMissingType() };
+        return { isValid: false, message: e.message, reason: e.getMissingTypes() };
       }
       return { isValid: false, message: e.message };
     }
@@ -55,7 +55,7 @@ export class AuthService implements AuthHandler {
     } catch (e) {
       Logger.error(e);
       if (e instanceof MissingAuthenticationException) {
-        return { isValid: false, message: e.message, reason: e.getMissingType() };
+        return { isValid: false, message: e.message, reason: e.getMissingTypes() };
       }
       return { isValid: false, message: e.message };
     }

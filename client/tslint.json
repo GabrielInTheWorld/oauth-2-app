@@ -1,12 +1,9 @@
 {
     "extends": "tslint:recommended",
     "rules": {
-      "align": {
-        "options": [
-          "parameters",
-          "statements"
-        ]
-      },
+        "align": {
+            "options": ["parameters", "statements"]
+        },
         "array-type": [true, "array"],
         "arrow-return-shorthand": true,
         "arrow-parens": false,
@@ -21,23 +18,13 @@
             "severity": "warn"
         },
         "directive-class-suffix": true,
-        "directive-selector": [
-          true,
-          "attribute",
-          "app",
-          "camelCase"
-        ],
+        "directive-selector": [true, "attribute", "app", "camelCase"],
         "eofline": true,
         "forin": false,
-        "import-blacklist": [
-          true,
-          "rxjs/Rx"
-        ],
+        "import-blacklist": [true, "rxjs/Rx"],
         "import-spacing": true,
         "indent": {
-          "options": [
-            "spaces"
-          ]
+            "options": ["spaces"]
         },
         "interface-name": false,
         "interface-over-type-literal": true,
@@ -45,12 +32,7 @@
         "label-position": true,
         "max-classes-per-file": true,
         "max-line-length": [true, 120],
-        "member-access": [
-            true,
-            "check-accessor",
-            "check-constructor",
-            "check-parameter-property"
-        ],
+        "member-access": [true, "check-accessor", "check-constructor", "check-parameter-property"],
         "member-ordering": [
             true,
             {
@@ -93,16 +75,16 @@
         "ordered-imports": [
             true,
             {
-                "import-source-order": "case-sensitive",
                 "grouped-imports": true,
-                "groups": [{
+                "groups": [
+                    {
                         "name": "internal dependencies",
-                        "match": "^(app/|\\.?\\./).*",
+                        "match": "^(src/|\\.?\\./).*",
                         "order": 30
                     },
                     {
                         "name": "external dependencies",
-                        "_match": "^(?!(app/|\\.?\\./)).*",
+                        "_match": "^(?!(src/|\\.?\\./)).*",
                         "match": ".*",
                         "order": 20
                     }
@@ -122,18 +104,16 @@
         "quotemark": [true, "single"],
         "radix": true,
         "semicolon": {
-          "options": [
-            "always"
-          ]
+            "options": ["always"]
         },
         "space-before-function-paren": {
-          "options": {
-            "anonymous": "never",
-            "asyncArrow": "always",
-            "constructor": "never",
-            "method": "never",
-            "named": "never"
-          }
+            "options": {
+                "anonymous": "never",
+                "asyncArrow": "always",
+                "constructor": "never",
+                "method": "never",
+                "named": "never"
+            }
         },
         "trailing-comma": false,
         "triple-equals": [true, "allow-null-check"],
@@ -149,29 +129,28 @@
             "array-destructuring"
         ],
         "typedef-whitespace": {
-          "options": [
-            {
-              "call-signature": "nospace",
-              "index-signature": "nospace",
-              "parameter": "nospace",
-              "property-declaration": "nospace",
-              "variable-declaration": "nospace"
-            },
-            {
-              "call-signature": "onespace",
-              "index-signature": "onespace",
-              "parameter": "onespace",
-              "property-declaration": "onespace",
-              "variable-declaration": "onespace"
-            }
-          ]
+            "options": [
+                {
+                    "call-signature": "nospace",
+                    "index-signature": "nospace",
+                    "parameter": "nospace",
+                    "property-declaration": "nospace",
+                    "variable-declaration": "nospace"
+                },
+                {
+                    "call-signature": "onespace",
+                    "index-signature": "onespace",
+                    "parameter": "onespace",
+                    "property-declaration": "onespace",
+                    "variable-declaration": "onespace"
+                }
+            ]
         },
         "unified-signatures": true,
         "use-lifecycle-interface": true,
         "use-pipe-transform-interface": true,
         "variable-name": [true, "check-format", "require-const-for-all-caps", "allow-leading-underscore"],
         "whitespace": [true, "check-branch", "check-decl", "check-operator", "check-separator", "check-type"]
-
     },
     "rulesDirectory": ["codelyzer"]
 }

@@ -3,4 +3,9 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
+
+    .list-item--left {
+        display: flex;
+        flex-direction: column;
+    }
 }

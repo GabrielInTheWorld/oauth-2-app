@@ -1,5 +1,5 @@
 import { AuthenticationType } from './authentication-types';
 
 export type AuthenticationCredential = {
-  [key in AuthenticationType]?: string;
+  [key in AuthenticationType]?: any;
 };

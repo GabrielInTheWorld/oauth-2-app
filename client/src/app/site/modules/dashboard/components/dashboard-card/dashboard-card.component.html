@@ -1,4 +1,4 @@
-<div class="grid-cell" (click)="onClick()">
+<div class="grid-cell" [ngClass]="{ clickable: !!dashboardItem.onClick }" (click)="onClick()">
     <mat-card>
         <mat-card-header>
             <mat-card-title>
@@ -7,13 +7,3 @@
         </mat-card-header>
     </mat-card>
 </div>
-
-<!-- <app-cell>
-    <mat-card>
-        <mat-card-header>
-            <mat-card-title>
-                {{ title }}
-            </mat-card-title>
-        </mat-card-header>
-    </mat-card>
-</app-cell> -->

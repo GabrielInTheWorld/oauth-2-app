@@ -1,16 +1,33 @@
 import { Authenticator } from '../interfaces/authenticator';
 import { User } from './../../../model-layer/core/models/user';
-import { Hotp, Totp } from 'final-otp';
+import { HotpService, TotpService } from 'final-otp';
 
 export abstract class BaseAuthenticator implements Authenticator {
-  protected hotpService = new Hotp();
-  protected totpService = new Totp();
+  protected hotpService = HotpService;
+  protected totpService = TotpService;
 
   protected currentlyPendingUsers = new Map<string, User>();
   protected intervals = new Map<string, NodeJS.Timeout>();
 
-  public abstract checkAuthenticationType(user: User, value?: string): void;
-  public abstract writeAuthenticationType(user: User, value?: string): any;
+  public abstract isAuthenticationTypeMissing(user: User, value?: string): boolean;
+
+  /**
+   * @deprecated Do not use! Use instead `isAuthenticationTypeMissing`!
+   * @param user
+   * @param value
+   */
+  public checkAuthenticationType(user: User, value?: string): void {
+    throw new Error('Do not use!');
+  }
+
+  /**
+   * @deprecated Do not use!
+   * @param user
+   * @param value
+   */
+  public writeAuthenticationType(user: User, value?: string): any {
+    throw new Error('Do not use!');
+  }
 
   protected registerPendingUser(user: User): void {
     this.currentlyPendingUsers.set(user.userId, user);

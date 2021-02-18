@@ -9,6 +9,34 @@ interface LoginAnswer extends Answer {
     token: string;
 }
 
+export namespace Authentication {
+    export type Digits = 6 | 7 | 8;
+
+    export interface OtpValues {
+        type: 'hotp' | 'totp';
+        secret: string; // base32
+        digits?: Digits;
+        issuer: string;
+        to: string;
+        period?: number;
+        initialCounter?: number;
+    }
+
+    export function otpToUri(options: OtpValues): string {
+        let uri = `otpauth://${options.type}/${options.issuer}:${options.to}?secret=${options.secret}&issuer=${options.issuer}`;
+        if (options.digits) {
+            uri += `&digits=${options.digits || 6}`;
+        }
+        if (options.period) {
+            uri += `&period=${options.period || 30}`;
+        }
+        if (options.initialCounter) {
+            uri += `&counter=${options.initialCounter}`;
+        }
+        return uri;
+    }
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -34,7 +62,7 @@ export class AuthService {
         return this.http.get('/api/hello');
     }
 
-    public async login(credentials: { username: string; password: string }): Promise<any> {
+    public async login(credentials: { username: string }): Promise<any> {
         const answer = await this.http.post<LoginAnswer>('/login', credentials);
         if (answer.success) {
             this.router.navigate(['']);
@@ -43,7 +71,10 @@ export class AuthService {
         }
     }
 
-    public async confirmTotp(username: string, additional: { password?: string; totp?: string }): Promise<any> {
+    public async confirmAuthentication(
+        username: string,
+        additional: { password?: string; totp?: string; email?: string }
+    ): Promise<any> {
         const answer = await this.http.post<LoginAnswer>('/confirm-login', { username, ...additional });
         if (answer.success) {
             this.router.navigate(['']);

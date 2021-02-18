@@ -9,6 +9,9 @@ import { PaperComponent } from './components/paper/paper.component';
 import { GridComponent } from './components/grid/grid.component';
 import { CellComponent } from './components/cell/cell.component';
 import { QrCodeComponent } from './components/qr-code/qr-code.component';
+import { PromptDialogComponent } from './components/prompt-dialog/prompt-dialog.component';
+import { ConfirmOnEnterDirective } from './directives/confirm-on-enter.directive';
+import { AutofocusDirective } from './directives/autofocus.directive';
 
 const components = [
     IndicatorComponent,
@@ -17,12 +20,14 @@ const components = [
     PaperComponent,
     GridComponent,
     CellComponent,
-    QrCodeComponent
+    QrCodeComponent,
+    ConfirmOnEnterDirective,
+    AutofocusDirective
 ];
 
 @NgModule({
     imports: [CommonModule, MaterialModule],
     exports: [MaterialModule, ...components],
-    declarations: [...components]
+    declarations: [...components, PromptDialogComponent]
 })
 export class UIModule {}

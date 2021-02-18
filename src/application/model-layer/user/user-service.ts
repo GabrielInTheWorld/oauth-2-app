@@ -52,17 +52,15 @@ export class UserService extends UserHandler {
     ]);
     const keys = await this.userDatabase.keys();
     this.userCounter = keys.length;
-    this.mockUserData();
     this.initWebsocketEvents();
   }
 
-  public async create(username: string, password: string): Promise<User> {
+  public async create(partialUser: Partial<User>): Promise<User> {
     const userId = (++this.userCounter).toString();
     const user: User = new User({
-      username,
-      password,
+      ...partialUser,
       userId,
-      authenticationTypes: [...this.defaultAuthenticationMethod]
+      authenticationTypes: partialUser.authenticationTypes || [...this.defaultAuthenticationMethod]
     });
     await this.userDatabase.set(`${userId}`, user);
     return user;
@@ -72,6 +70,10 @@ export class UserService extends UserHandler {
     const user = await this.getUserByUserId(userId);
     const updatedUser = { ...user, ...update };
     await this.userDatabase.set(userId, updatedUser);
+  }
+
+  public async delete(userId: string): Promise<void> {
+    await this.userDatabase.remove(userId);
   }
 
   private async updateAll(update: Partial<User>): Promise<void> {
@@ -117,14 +119,18 @@ export class UserService extends UserHandler {
     }));
   }
 
-  private async sendAllUsers(): Promise<void> {
+  private async sendAllUsers(toSocket?: string): Promise<void> {
     const users = await this.getAllUsersForClient();
-    this.websocket.broadcastAll({ event: 'all-users', data: [...users] });
+    if (toSocket) {
+      this.websocket.emit(toSocket, { event: 'all-users', data: [...users] });
+    } else {
+      this.websocket.broadcastAll({ event: 'all-users', data: [...users] });
+    }
   }
 
-  public async hasUser(username: string, password: string): Promise<boolean> {
+  public async hasUser(username: string): Promise<boolean> {
     const users = await this.userDatabase.find<User>('username', username);
-    return users.length === 1 && users[0].password === password;
+    return users.length === 1;
   }
 
   public setDefaultAuthenticationTypes(types: AuthenticationType[]): Promise<void> {
@@ -137,8 +143,6 @@ export class UserService extends UserHandler {
       userId: '1',
       username: 'admin',
       password: 'admin',
-      totpT0: undefined,
-      totpSecret: undefined,
       authenticationTypes: [AuthenticationType.PASSWORD]
     });
     Logger.debug('Default methods:', this.defaultAuthenticationMethod, this._defaultAuthenticationMethods);
@@ -146,18 +150,39 @@ export class UserService extends UserHandler {
     await this.update(user.userId, user);
   }
 
+  private async resetDatabase(): Promise<void> {
+    await this.userDatabase.clear();
+    await this.mockUserData();
+  }
+
   private initWebsocketEvents(): void {
     this.websocket.fromEvent('all-users').subscribe(() => {
       this.sendAllUsers();
+    });
+    this.websocket.fromEvent<any>('create-user').subscribe(async message => {
+      console.log('Received event: create-user: ', message);
+      const partialUser = message.data;
+      await this.create(partialUser);
+      this.sendAllUsers(message.socketId);
     });
     this.websocket.fromEvent<any>('get-user').subscribe(async message => {
       const id = message.data;
       console.log('Received event: get-user', id);
       this.websocket.broadcastAll({ event: 'get-user', data: await this.getUserByUserId(id) });
     });
-    this.websocket.fromEvent<Partial<User>>('create-user').subscribe(newUser => {
-      console.log('Received event: create-user: ', newUser);
-      this.sendAllUsers();
+    this.websocket.fromEvent<any>('update-user').subscribe(async message => {
+      const update = message.data;
+      await this.update(update.userId, update);
+      this.sendAllUsers(message.socketId);
+    });
+    this.websocket.fromEvent<any>('delete-user').subscribe(async message => {
+      const id = message.data;
+      await this.delete(id);
+      this.sendAllUsers(message.socketId);
+    });
+    this.websocket.fromEvent<any>('reset-database').subscribe(async message => {
+      await this.resetDatabase();
+      this.sendAllUsers(message.socketId);
     });
   }
 
@@ -165,13 +190,11 @@ export class UserService extends UserHandler {
     const user = (await this.userDatabase.find<User>('username', 'admin'))[0];
     Logger.debug('mockUserData', user);
     if (!user) {
-      await this.create('admin', 'admin');
-    } else {
-      if (!user.authenticationTypes || !user.authenticationTypes.length) {
-        await this.update(user.userId, {
-          authenticationTypes: [...this.defaultAuthenticationMethod]
-        });
-      }
+      await this.create({
+        username: 'admin',
+        password: 'admin',
+        authenticationTypes: [...this.defaultAuthenticationMethod]
+      });
     }
   }
 }

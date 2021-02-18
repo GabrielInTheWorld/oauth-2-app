@@ -1,36 +1,48 @@
 <app-loading-spinner *ngIf="showSpinner"></app-loading-spinner>
 
-<!-- <app-headbar></app-headbar> -->
 <div class="login-site--wrapper flex-center">
-    <form [formGroup]="loginForm" *ngIf="!totpRequired">
-        <div>
-            <mat-form-field>
-                <input matInput formControlName="username" placeholder="Username" />
-            </mat-form-field>
-        </div>
-        <div>
-            <mat-form-field>
-                <input matInput formControlName="password" placeholder="Password" />
-            </mat-form-field>
-        </div>
+    <ng-container *ngIf="!requiredAuthenticationFactors.length">
+        <h2>Geben Sie Ihre Identität ein:</h2>
+        <form [formGroup]="loginForm" (appConfirmOnEnter)="login()">
+            <div>
+                <mat-form-field>
+                    <input matInput [appAutofocus]="true" formControlName="username" placeholder="Benutzername" />
+                </mat-form-field>
+            </div>
+        </form>
         <div>
             <button mat-raised-button color="primary" [disabled]="loginForm.invalid" (click)="login()">Anmelden</button>
             <button mat-button (click)="clear()">Abbruch</button>
         </div>
-    </form>
-    <div *ngIf="totpRequired">
-        Zur Bestätigung Ihrer Identität geben Sie den sechsstelligen Code Ihrer Smartphone-App ein
-        <form [formGroup]="additionalForm">
-            <mat-form-field>
-                <input matInput formControlName="totp" placeholder="Sechsstelliger Code" />
-                <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+    </ng-container>
+    <ng-container *ngIf="!!requiredAuthenticationFactors.length">
+        <h2>Geben Sie zur Authentifizierung folgende Faktoren ein:</h2>
+        <form [formGroup]="authForm" (appConfirmOnEnter)="confirmLogin()">
+            <mat-form-field *ngIf="requiredAuthenticationFactors.includes('password')">
+                <input
+                    matInput
+                    formControlName="password"
+                    placeholder="Password"
+                    [type]="isVisible ? 'text' : 'password'"
+                />
+                <button matSuffix mat-icon-button (click)="isVisible = !isVisible">
+                    <mat-icon>{{ isVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+            </mat-form-field>
+            <mat-form-field *ngIf="requiredAuthenticationFactors.includes('email')">
+                <mat-label>Geben Sie den Code ein, den Sie mittels einer E-Mail erhalten haben:</mat-label>
+                <input matInput formControlName="email" placeholder="Code" />
+            </mat-form-field>
+            <mat-form-field *ngIf="requiredAuthenticationFactors.includes('totp')">
+                <mat-label>Geben Sie den aktuellen Code ein:</mat-label>
+                <input matInput formControlName="totp" placeholder="Code" />
             </mat-form-field>
         </form>
         <div>
-            <button mat-raised-button color="primary" [disabled]="additionalForm.invalid" (click)="sendTotp()">
+            <button mat-raised-button color="primary" [disabled]="authForm.invalid" (click)="confirmLogin()">
                 Bestätigen
             </button>
-            <button mat-button (click)="clear()">Abbruch</button>
+            <button mat-button (click)="cancel()">Abbruch</button>
         </div>
-    </div>
+    </ng-container>
 </div>

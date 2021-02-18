@@ -1,40 +1,51 @@
+import { Hotp } from 'final-otp';
+import sendmail from 'sendmail';
+
+import { Logger } from './../../../services/logger';
 import { AuthenticationException } from '../../../model-layer/core/exceptions/authentication-exception';
-import { AuthenticationType } from '../../../model-layer/user/authentication-types';
 import { BaseAuthenticator } from './base-authenticator';
-import { MissingAuthenticationException } from '../../../model-layer/core/exceptions/missing-authentication-exception';
 import { User } from './../../../model-layer/core/models/user';
 import { Random } from '../../helper';
 
 export class EmailAuthenticator extends BaseAuthenticator {
-  public checkAuthenticationType(user: User, value?: string): void {
+  private sendMailFn = sendmail({});
+
+  public isAuthenticationTypeMissing(user: User, value?: string): boolean {
     if (!value) {
-      this.intervals.set(
-        user.userId,
-        setInterval(() => this.prepareEmailAuthentication(user), 30)
-      );
-      throw new MissingAuthenticationException(AuthenticationType.EMAIL, user);
+      this.prepareEmailAuthentication(user);
+      return true;
     }
     const pendingUser = this.currentlyPendingUsers.get(user.userId);
-    if (pendingUser?.authenticationCredentials.email !== value) {
-      throw new AuthenticationException('Email code is not provided!');
+    const hotp = pendingUser?.authenticationCredentials.email as Hotp;
+    if (!hotp.verify(value)) {
+      throw new AuthenticationException('Email code is not correct!');
     }
-  }
-
-  public writeAuthenticationType(user: User, value?: string): User {
-    if (!value && !user.email) {
-      throw new AuthenticationException('No email-address provided!');
-    }
-    const secret = 'Hello World';
-    const updatedUser = new User({ ...user, email: value, emailSecret: secret });
-    return updatedUser;
+    return false;
   }
 
   private prepareEmailAuthentication(user: User): void {
-    const hotp = this.hotpService.create(user.emailSecret as string, Random.randomNumber(8));
+    const hotp = this.hotpService.create((user.emailSecret as string) || Random.cryptoKey(), Random.randomNumber(8), {
+      expiresIn: 600000
+    });
     user.authenticationCredentials.email = hotp;
     this.registerPendingUser(user);
-    this.sendEmailWithHotp(user.email as string, hotp);
+    this.sendEmailWithHotp(user.email as string, hotp!.value);
   }
 
-  private sendEmailWithHotp(email: string, hotp: string): void {}
+  private sendEmailWithHotp(email: string, hotp: string): void {
+    this.sendMailFn(
+      {
+        from: 'no-reply@demonstrator.com',
+        to: email,
+        subject: 'Bestätigung einer Authentifizierung',
+        html: `Ihr Bestätigungs-Code lautet: ${hotp}\n\r\n\rDieser Code ist zehn Minuten lang gültig.`
+      },
+      (err, reply) => {
+        if (err) {
+          Logger.error(err);
+        }
+        Logger.debug(reply);
+      }
+    );
+  }
 }

@@ -1,3 +1,4 @@
+import { MissingAuthenticationException } from './../model-layer/core/exceptions/missing-authentication-exception';
 import { AuthenticationException } from './../model-layer/core/exceptions/authentication-exception';
 import { PasswordAuthenticator } from './../util/authentication/implementations/password-authenticator';
 import { TotpAuthenticator } from './../util/authentication/implementations/totp-authenticator';
@@ -18,6 +19,7 @@ export class AuthenticatorProviderService implements AuthenticatorProvider {
   };
 
   public readAuthenticationValues(user: User, values: AuthenticationCredential): void {
+    const missingTypes: AuthenticationType[] = [];
     if (!Object.keys(this.authenticators).length) {
       throw new AuthenticationException('No authenticators provided!');
     }
@@ -25,7 +27,12 @@ export class AuthenticatorProviderService implements AuthenticatorProvider {
       if (!this.authenticators[key]) {
         throw new AuthenticationException(`Authenticator ${key} not provided!`);
       }
-      this.authenticators[key]?.checkAuthenticationType(user, values[key]);
+      if (this.authenticators[key]?.isAuthenticationTypeMissing(user, values[key])) {
+        missingTypes.push(key);
+      }
+    }
+    if (!!missingTypes.length) {
+      throw new MissingAuthenticationException(user, ...missingTypes);
     }
   }
 

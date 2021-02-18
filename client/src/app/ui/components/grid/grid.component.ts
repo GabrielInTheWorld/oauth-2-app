@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+export type Orientation = 'vertical' | 'horizontal';
+
 @Component({
     selector: 'app-grid',
     templateUrl: './grid.component.html',
@@ -11,6 +13,9 @@ export class GridComponent implements OnInit {
 
     @Input()
     public centering = false;
+
+    @Input()
+    public orientation: Orientation = 'horizontal';
 
     public constructor() {}
 

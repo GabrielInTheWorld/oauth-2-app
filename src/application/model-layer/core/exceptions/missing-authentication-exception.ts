@@ -4,19 +4,19 @@ import { BaseException } from './base-exception';
 
 export class MissingAuthenticationException extends BaseException {
   private readonly user: User;
-  private readonly missingType: AuthenticationType;
+  private readonly missingType: AuthenticationType[] = [];
 
-  public constructor(type: AuthenticationType, user: User) {
-    super(`Type ${type} is missing in authentication by user: ${user.userId}`);
+  public constructor(user: User, ...missingTypes: AuthenticationType[]) {
+    super(`Types ${missingTypes} are missing in authentication by user: ${user.userId}`);
     this.user = user;
-    this.missingType = type;
+    this.missingType = missingTypes;
   }
 
   public getUser(): User {
     return this.user;
   }
 
-  public getMissingType(): AuthenticationType {
+  public getMissingTypes(): AuthenticationType[] {
     return this.missingType;
   }
 }

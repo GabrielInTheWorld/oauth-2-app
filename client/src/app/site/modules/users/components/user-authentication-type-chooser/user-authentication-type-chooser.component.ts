@@ -1,7 +1,11 @@
-import { User } from './../../models/user';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BaseComponent } from './../../../../../core/models/base.component';
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Base32 } from 'base-coding';
+
+import { BaseComponent } from './../../../../../core/models/base.component';
+import { CryptoService } from './../../../../../core/services/crypto.service';
+import { Authentication } from 'src/app/core/services/auth.service';
+import { User } from './../../models/user';
 
 export interface AuthTypeValue {
     email?: string;
@@ -16,7 +20,24 @@ export interface AuthTypeValue {
 })
 export class UserAuthenticationTypeChooserComponent extends BaseComponent implements OnInit {
     @Input()
-    public selectedAuthenticationTypes: string[] = [];
+    public set selectedAuthenticationTypes(types: string[]) {
+        this.selectedTypes = types;
+        this.prepareTotp();
+    }
+
+    public get selectedAuthenticationTypes(): string[] {
+        return this.selectedTypes;
+    }
+
+    @Input()
+    public set username(value: string) {
+        this._username = value;
+        this.prepareTotp();
+    }
+
+    public get username(): string {
+        return this._username;
+    }
 
     @Input()
     public user: User;
@@ -26,17 +47,49 @@ export class UserAuthenticationTypeChooserComponent extends BaseComponent implem
 
     public authTypeForm: FormGroup;
 
-    constructor(private readonly fb: FormBuilder) {
+    public get totpUri(): string {
+        return this.authTypeForm.get('totp').value;
+    }
+
+    public isVisible = false;
+
+    private selectedTypes: string[] = [];
+
+    private _username = '';
+
+    public constructor(private readonly fb: FormBuilder, private readonly crypto: CryptoService) {
         super();
     }
 
-    ngOnInit(): void {
-        console.log('user', this.user);
+    public ngOnInit(): void {
         this.authTypeForm = this.fb.group({
             email: [this.user?.email || '', Validators.email],
             totp: this.user?.totp || '',
             password: this.user?.password || ''
         });
+        this.formChange.emit(this.authTypeForm.value); // emitting initial value
         this.subscriptions.push(this.authTypeForm.valueChanges.subscribe(value => this.formChange.emit(value)));
+    }
+
+    public getValue(): AuthTypeValue {
+        return this.authTypeForm.value;
+    }
+
+    private prepareTotp(): void {
+        if (!this.selectedTypes.includes('totp')) {
+            return;
+        }
+
+        const secret = this.crypto.generateRandomString(128);
+        const totpUri = Authentication.otpToUri({
+            type: 'totp',
+            to: this.username,
+            issuer: 'Demonstrator',
+            secret: Base32.encode(secret),
+            period: 30,
+            digits: 6
+        });
+        console.log('totpUri:', totpUri);
+        this.authTypeForm.patchValue({ totp: totpUri });
     }
 }

@@ -1,4 +1,3 @@
-import { Logger } from './../../../services/logger';
 import { AuthenticationCredential } from './../../user/authentication-credential';
 import { AuthenticationType } from '../../user/authentication-types';
 import { BaseModel } from '../base/base-model';
@@ -30,11 +29,18 @@ export class User extends BaseModel<User> {
   public readonly emailSecret?: string;
 
   /**
+   * A uri to generating totps.
+   */
+  public readonly totp?: string;
+
+  /**
+   * @deprecated
    * The property `t0` for generating a totp-token.
    */
   public readonly totpT0?: number;
 
   /**
+   * @deprecated
    * A secret used for generating a totp-token.
    */
   public readonly totpSecret?: string;

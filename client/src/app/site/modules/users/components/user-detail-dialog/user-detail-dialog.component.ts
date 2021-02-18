@@ -1,22 +1,16 @@
-import { BaseComponent } from './../../../../../core/models/base.component';
-import { FormGroup, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-import { User } from './../../models/user';
 import { Component, Inject, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { debounceTime } from 'rxjs/operators';
+
+import { BaseComponent } from './../../../../../core/models/base.component';
+import { User } from './../../models/user';
 
 export interface UserDetailDialogData {
     user?: User;
     authenticationTypes: string[];
     [key: string]: any;
 }
-
-const AuthenticationTypeValidator = (currentTypes: string[], propertyName: string): ValidatorFn => {
-    return (control: AbstractControl): { [key: string]: any } | null => {
-        if (currentTypes.includes(propertyName) && !control.value) {
-            return { required: true };
-        }
-    };
-};
 
 @Component({
     selector: 'app-user-detail-dialog',
@@ -30,6 +24,10 @@ export class UserDetailDialogComponent extends BaseComponent implements OnInit {
         return this.data.user;
     }
 
+    public get username(): string {
+        return this._username;
+    }
+
     public get authenticationTypes(): string[] {
         return this.data.authenticationTypes;
     }
@@ -41,11 +39,12 @@ export class UserDetailDialogComponent extends BaseComponent implements OnInit {
     public authTypeForm: { [key: string]: string } = {};
 
     private _selectedTypes: string[] = [];
+    private _username = '';
 
     public constructor(
         public dialogRef: MatDialogRef<UserDetailDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) private data: UserDetailDialogData,
-        private fb: FormBuilder
+        @Inject(MAT_DIALOG_DATA) private readonly data: UserDetailDialogData,
+        private readonly fb: FormBuilder
     ) {
         super();
     }
@@ -57,31 +56,29 @@ export class UserDetailDialogComponent extends BaseComponent implements OnInit {
         };
         if (this.user) {
             this._selectedTypes = this.user.authenticationTypes;
-            // for (const type of this.user.authenticationTypes) {
-            //     form[type] = [this.user[type] || '', Validators.required];
-            // }
         }
         this.userForm = this.fb.group(form);
         this.subscriptions.push(
-            this.userForm.get('authenticationTypes').valueChanges.subscribe(currentValue => {
-                this._selectedTypes = currentValue;
-                // this.updateForm();
-            })
+            this.userForm
+                .get('username')
+                .valueChanges.pipe(debounceTime(200))
+                .subscribe(name => (this._username = name)),
+            this.userForm
+                .get('authenticationTypes')
+                .valueChanges.subscribe(currentValue => (this._selectedTypes = currentValue))
         );
+    }
+
+    public onSubmit(): void {
+        if (!this.isValid()) {
+            return;
+        }
+        const dialogResult = { userId: this.user?.userId, ...this.userForm.value, ...this.authTypeForm };
+        this.dialogRef.close(dialogResult);
     }
 
     public isValid(): boolean {
         const dirtyAuthTypes = this.selectedAuthenticationTypes.filter(type => !this.authTypeForm[type]);
         return this.userForm.valid && !dirtyAuthTypes.length;
     }
-
-    // private updateForm(): void {
-    //     for (const type of this.selectedAuthenticationTypes) {
-    //         this.userForm.setControl(
-    //             type,
-    //             this.fb.control('', AuthenticationTypeValidator(this.selectedAuthenticationTypes, type))
-    //         );
-    //     }
-    //     console.log('userForm', this.userForm);
-    // }
 }

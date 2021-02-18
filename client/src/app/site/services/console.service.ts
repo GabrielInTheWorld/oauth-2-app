@@ -16,11 +16,11 @@ export class ConsoleService {
     private readonly oldLog: (...messages: any[]) => void;
 
     public constructor() {
-        this.oldLog = console.log;
-        console.log = (...messages: any[]) => this.log(...messages);
-        // tslint:disable-next-line:no-console
-        console.debug = (...messages: any[]) => this.debug(...messages);
-        console.error = (...messages: any[]) => this.error(...messages);
+        // this.oldLog = console.log;
+        // console.log = (...messages: any[]) => this.log(...messages);
+        // // tslint:disable-next-line:no-console
+        // console.debug = (...messages: any[]) => this.debug(...messages);
+        // console.error = (...messages: any[]) => this.error(...messages);
     }
 
     public log(...messages: any[]): void {

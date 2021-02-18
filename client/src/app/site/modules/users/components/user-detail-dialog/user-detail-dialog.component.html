@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>{{ user ? user.username : 'Neuer Benutzer' }}</h1>
 <div mat-dialog-content>
-    <form [formGroup]="userForm" class="user-form">
+    <form [formGroup]="userForm" class="user-form" (appConfirmOnEnter)="onSubmit()">
         <mat-form-field>
             <mat-label>Benutzername*</mat-label>
             <input matInput formControlName="username" />
@@ -15,6 +15,7 @@
         </mat-form-field>
         <app-user-authentication-type-chooser
             [user]="user"
+            [username]="username"
             [selectedAuthenticationTypes]="selectedAuthenticationTypes"
             (formChange)="authTypeForm = $event"
         ></app-user-authentication-type-chooser>
@@ -22,7 +23,7 @@
 </div>
 <div mat-dialog-actions class="dialog-actions">
     <button mat-button (click)="dialogRef.close()">Abbrechen</button>
-    <button [disabled]="!isValid()" mat-button color="primary" [mat-dialog-close]="userForm.value">
+    <button [disabled]="!isValid()" mat-button color="primary" (click)="onSubmit()">
         {{ user ? 'Aktualisieren' : 'Erstellen' }}
     </button>
 </div>

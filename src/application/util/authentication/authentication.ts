@@ -32,4 +32,24 @@ export namespace Authentication {
     }
     return uri;
   }
+
+  export function uriToOtp(uri: string): OtpValues {
+    const uriStart = 'otpauth://';
+    if (!uri || !uri.startsWith(uriStart)) {
+      throw new Error('Wrong URI!');
+    }
+    const rawValues = uri.slice(uriStart.length);
+    const type = rawValues.slice(0, rawValues.indexOf('/')) as 'totp' | 'hotp';
+    const to = rawValues.slice(rawValues.indexOf(':'), rawValues.indexOf('?'));
+    const options = rawValues.slice(rawValues.indexOf('?') + 1).split('&');
+    const otpValues: any = {
+      type,
+      to
+    };
+    for (const option of options) {
+      const [key, value] = option.split('=');
+      otpValues[key] = value;
+    }
+    return otpValues;
+  }
 }

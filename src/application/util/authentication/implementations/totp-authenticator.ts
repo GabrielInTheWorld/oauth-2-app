@@ -1,42 +1,32 @@
-import base32Encode from 'base32-encode';
-
 import { AuthenticationException } from '../../../model-layer/core/exceptions/authentication-exception';
-import { AuthenticationType } from './../../../model-layer/user/authentication-types';
 import { BaseAuthenticator } from './base-authenticator';
 import { Logger } from './../../../services/logger';
-import { MissingAuthenticationException } from '../../../model-layer/core/exceptions/missing-authentication-exception';
 import { User } from './../../../model-layer/core/models/user';
+import { Authentication } from '../authentication';
 
 export class TotpAuthenticator extends BaseAuthenticator {
-  public constructor() {
-    super();
-  }
-
-  public checkAuthenticationType(user: User, value?: string): void {
+  public isAuthenticationTypeMissing(user: User, value?: string): boolean {
     if (!value) {
       this.prepareTotpAuthentication(user);
-      throw new MissingAuthenticationException(AuthenticationType.TOTP, user);
+      return true;
     }
     const pendingUser = this.currentlyPendingUsers.get(user.userId);
-    if (!this.totpService.verify(value, pendingUser?.totpSecret as string)) {
+    const otpValues = Authentication.uriToOtp(pendingUser?.totp as string);
+    if (!this.totpService.verify(value, otpValues.secret)) {
       throw new AuthenticationException('TOTP codes do not match!');
     }
     this.doCleanUp(user.userId);
-  }
-
-  public writeAuthenticationType(user: User): User {
-    if (user.totpSecret && user.totpT0) {
-      return user;
-    }
-    const arrayBuffer = new TextEncoder().encode('Hello World');
-    const secret = base32Encode(arrayBuffer, 'RFC3548', { padding: false });
-    const updatedUser = new User({ ...user, totpSecret: secret, totpT0: Math.round(new Date().getTime() / 1000) });
-    return updatedUser;
+    return false;
   }
 
   private prepareTotpAuthentication(user: User): void {
-    const totp = this.totpService.create(user.totpSecret as string, user.totpT0 as number);
-    Logger.debug('Totp:', totp);
+    Logger.debug('Prepare totp auth with user:', user);
+    if (!user.totp) {
+      throw new Error(`User ${user.username} has to create a totp-uri, first!`);
+    }
+    const otpValues = Authentication.uriToOtp(user.totp);
+    console.log('Received otpValues', otpValues);
+    const totp = this.totpService.create(otpValues.secret);
     user.authenticationCredentials.totp = totp;
     this.registerPendingUser(user);
   }

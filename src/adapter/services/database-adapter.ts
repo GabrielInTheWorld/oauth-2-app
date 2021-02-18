@@ -28,8 +28,7 @@ export class DatabaseAdapter extends DatabasePort {
     super();
     if (!this.database) {
       PouchDB.plugin(PouchDBFind);
-      this.database = new PouchDB('db');
-      // this.clear();
+      this.database = new PouchDB('db', { auto_compaction: true });
     }
   }
 
@@ -151,7 +150,8 @@ export class DatabaseAdapter extends DatabasePort {
       set: <T>(key: string, obj: T) => this.set<T>(prefix, key, obj),
       get: <T>(key: string, defaultValue: any = {}) => this.get<T>(prefix, key, modelConstructor, defaultValue),
       getAll: <T>() => this.getAll<T>(prefix),
-      remove: (key: string) => this.remove(prefix, key)
+      remove: (key: string) => this.remove(prefix, key),
+      clear: () => this.clear()
     } as any;
   }
 
@@ -173,10 +173,8 @@ export class DatabaseAdapter extends DatabasePort {
 
   /**
    * Clears the whole database.
-   *
-   * Necessary for development to avoid inserting a new entry every refresh.
    */
-  private async clear(): Promise<void> {
+  public async clear(): Promise<void> {
     const docResponse = await this.doPromise('clear', this.database.allDocs());
     await Promise.all(docResponse.rows.map(doc => this.database.remove(doc.id, doc.value.rev)));
   }
