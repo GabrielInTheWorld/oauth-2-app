@@ -8,6 +8,13 @@ export interface SettingsObject {
   [key: string]: any;
 }
 
+/**
+ * @deprecated
+ *
+ * @export
+ * @abstract
+ * @class SettingsHandler
+ */
 export abstract class SettingsHandler {
   public abstract setSetting(key: keyof SettingsObject | string, value: any): void;
   public abstract getSetting(key: keyof SettingsObject | string): any;

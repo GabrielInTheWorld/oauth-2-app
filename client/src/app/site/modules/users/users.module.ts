@@ -9,6 +9,7 @@ import { UsersRoutingModule } from './users-routing.module';
 import { UsersCreateDialogComponent } from './components/users-create-dialog/users-create-dialog.component';
 import { UserListComponent } from './components/user-list/user-list.component';
 import { UserAuthenticationTypeChooserComponent } from './components/user-authentication-type-chooser/user-authentication-type-chooser.component';
+import { FidoDialogComponent } from './components/fido-dialog/fido-dialog.component';
 
 const declarations = [
     UsersListComponent,
@@ -20,7 +21,7 @@ const declarations = [
 
 @NgModule({
     imports: [UsersRoutingModule, UIModule],
-    declarations: [...declarations, UserListComponent, UserAuthenticationTypeChooserComponent],
+    declarations: [...declarations, UserListComponent, UserAuthenticationTypeChooserComponent, FidoDialogComponent],
     exports: [UserManagementComponent]
 })
 export class UsersModule {}

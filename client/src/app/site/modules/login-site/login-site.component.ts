@@ -15,7 +15,6 @@ export class LoginSiteComponent extends BaseComponent implements OnInit {
 
     public errorMessage = '';
     public showSpinner = false;
-    public totpRequired = false;
     public authForm: FormGroup;
     public requiredAuthenticationFactors: string[] = [];
 
@@ -63,7 +62,6 @@ export class LoginSiteComponent extends BaseComponent implements OnInit {
         this.loginForm.setValue({
             username: ''
         });
-        this.totpRequired = false;
     }
 
     public cancel(): void {

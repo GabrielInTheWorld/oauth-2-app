@@ -1,8 +1,10 @@
+import { FidoProviderService } from './../../application/services/fido-provider-service';
 import express, { Request, Response } from 'express';
+import path from 'path';
 
 import { AuthHandler } from '../../application/interfaces/auth-handler';
 import { AuthService } from '../../application/services/auth-service';
-import { Factory } from '../../application/model-layer/core/modules/decorators';
+import { Factory, Inject } from '../../application/model-layer/core/modules/decorators';
 import { Logger } from '../../application/services/logger';
 import { RouteHandler } from '../interfaces/route-handler';
 import { Token } from '../../application/model-layer/core/models/ticket';
@@ -10,6 +12,9 @@ import { Token } from '../../application/model-layer/core/models/ticket';
 export default class RouteService extends RouteHandler {
   @Factory(AuthService)
   private readonly authHandler: AuthHandler;
+
+  @Inject(FidoProviderService)
+  private readonly fidoService: FidoProviderService;
 
   public async login(request: express.Request, response: express.Response): Promise<void> {
     const username = request.body.username;
@@ -41,12 +46,27 @@ export default class RouteService extends RouteHandler {
     this.sendResponse(true, 'Authentication successful!', response);
   }
 
+  public async getMakeCredential(request: express.Request, response: express.Response): Promise<void> {
+    const options = await this.fidoService.createOptions();
+    this.sendResponse(true, 'Successful', response, 200, options, undefined, true);
+  }
+
+  public async postMakeCredential(request: express.Request, response: express.Response): Promise<void> {
+    this.fidoService.onCredential(request.body);
+    this.sendResponse(true, 'Created', response);
+  }
+
+  public async fido(req: express.Request, res: express.Response): Promise<void> {
+    this.fidoService.onCredential(req.body);
+    this.sendResponse(true, 'Successful', res);
+  }
+
   public async whoAmI(request: express.Request, response: express.Response): Promise<void> {
     const cookieAsString = request.cookies[AuthHandler.COOKIE_NAME];
     const result = await this.authHandler.whoAmI(cookieAsString);
     if (!result.isValid || (result.isValid && !result.result)) {
       response.clearCookie(AuthHandler.COOKIE_NAME);
-      this.sendResponse(false, 'anonymous', response);
+      this.sendResponse(false, 'anonymous', response, 403);
       return;
     }
     response.locals['newToken'] = result.result?.token;
@@ -108,7 +128,9 @@ export default class RouteService extends RouteHandler {
   }
 
   public index(_: any, response: Response): void {
-    this.sendResponse(true, 'Authentication service is available', response);
+    const index = path.join(path.resolve('client/dist/client'), 'index.html');
+    response.sendFile(index);
+    // this.sendResponse(true, 'Authentication service is available', response);
   }
 
   public secureIndex(_: any, response: Response): void {

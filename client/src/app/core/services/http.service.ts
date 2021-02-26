@@ -113,6 +113,6 @@ export class HttpService {
         const protocol = window.location.protocol;
         const location = window.location.hostname;
         const port = window.location.port;
-        return `${protocol}//${location}:${port === '4200' ? '8000' : port}`;
+        return `${protocol}//${location}:${location === 'localhost' ? '8000' : port}`;
     }
 }

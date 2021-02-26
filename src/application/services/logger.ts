@@ -52,6 +52,10 @@ export class Logger {
     this.info(LogColor.FgWhite, ...message);
   }
 
+  public static warn(...message: any): void {
+    this.info(LogColor.FgYellow, ...message);
+  }
+
   public static debug(...message: any): void {
     this.info(LogColor.FgGreen, ...message);
   }

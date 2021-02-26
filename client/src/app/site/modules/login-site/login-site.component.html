@@ -24,6 +24,7 @@
                     formControlName="password"
                     placeholder="Password"
                     [type]="isVisible ? 'text' : 'password'"
+                    [appAutofocus]="true"
                 />
                 <button matSuffix mat-icon-button (click)="isVisible = !isVisible">
                     <mat-icon>{{ isVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -31,11 +32,11 @@
             </mat-form-field>
             <mat-form-field *ngIf="requiredAuthenticationFactors.includes('email')">
                 <mat-label>Geben Sie den Code ein, den Sie mittels einer E-Mail erhalten haben:</mat-label>
-                <input matInput formControlName="email" placeholder="Code" />
+                <input matInput formControlName="email" placeholder="Code" [appAutofocus]="true" />
             </mat-form-field>
             <mat-form-field *ngIf="requiredAuthenticationFactors.includes('totp')">
                 <mat-label>Geben Sie den aktuellen Code ein:</mat-label>
-                <input matInput formControlName="totp" placeholder="Code" />
+                <input matInput formControlName="totp" placeholder="Code" [appAutofocus]="true" />
             </mat-form-field>
         </form>
         <div>

@@ -33,6 +33,8 @@ export class User extends BaseModel<User> {
    */
   public readonly totp?: string;
 
+  public readonly fido?: string;
+
   /**
    * @deprecated
    * The property `t0` for generating a totp-token.

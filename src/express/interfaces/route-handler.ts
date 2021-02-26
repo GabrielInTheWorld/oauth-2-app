@@ -24,6 +24,10 @@ export abstract class RouteHandler extends Middleware {
    * @param response HttpResponse
    */
   public abstract authenticate(request: express.Request, response: express.Response): void;
+  public abstract getMakeCredential(request: express.Request, response: express.Response): void;
+  public abstract postMakeCredential(request: express.Request, response: express.Response): void;
+
+  public abstract fido(req: express.Request, res: express.Response): void;
   public abstract notFound(request: express.Request, response: express.Response): Promise<void>;
 
   public abstract login(request: express.Request, response: express.Response): Promise<void>;

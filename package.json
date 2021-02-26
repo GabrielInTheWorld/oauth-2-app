@@ -2,7 +2,7 @@
   "name": "openslides-auth-service",
   "version": "1.0.0",
   "description": "Service for OpenSlides which ...",
-  "main": "./build/server.js",
+  "main": "main.js",
   "directories": {
     "test": "jest"
   },
@@ -10,12 +10,15 @@
     "postinstall": "npm run uptodate",
     "cleanup": "npm run prettify-write && npm run linter-write",
     "start": "node build/index.js",
+    "start:electron": "npm run build-electron && electron .",
+    "start:electron-only": "electron .",
     "dev": "nodemon src/index.ts",
     "linter-write": "tslint --fix -c ./tslint.json 'src/**/*{.ts,.tsx}'",
     "prettify-write": "prettier --config ./.prettierrc --write \"src/**/*{.ts,.js,.json,.css,.scss}\"",
     "lint-check": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'",
     "prettify-check": "prettier --config ./.prettierrc --list-different \"src/{app,environments}/**/*{.ts,.js,.json,.css,.scss}\"",
     "build-all": "npm run build-ts && npm run build-client",
+    "build-electron": "npm run build-ts && cd client && npm run build:electron",
     "build-ts": "tsc",
     "build-client": "cd client && npm install && npm install --only=dev && npm run build",
     "heroku-postbuild": "npm run build-all",
@@ -51,6 +54,7 @@
     "@types/sha.js": "^2.4.0",
     "@types/superagent": "^4.1.10",
     "@types/websocket": "^1.0.1",
+    "electron-rebuild": "^2.3.5",
     "jest": "^26.6.3",
     "nodemon": "^2.0.2",
     "prettier": "^1.19.1",
@@ -63,11 +67,14 @@
     "axios": "^0.21.1",
     "base-coding": "^1.0.3",
     "base32-encode": "^1.1.1",
+    "bignumber.js": "^9.0.1",
     "body-parser": "^1.19.0",
+    "cbor": "^7.0.2",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.2.0",
     "dotenv": "^8.2.0",
+    "electron": "^11.3.0",
     "express": "^4.17.1",
     "express-jwt": "^5.3.1",
     "express-react-views": "^0.11.0",
@@ -88,6 +95,7 @@
     "tslib": "^1.11.2",
     "typescript": "^3.8.3",
     "uuidv4": "^6.0.6",
-    "websocket": "^1.0.33"
+    "websocket": "^1.0.33",
+    "xterm": "^4.10.0"
   }
 }

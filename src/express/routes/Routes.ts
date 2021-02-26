@@ -43,6 +43,15 @@ export class Routes {
 
   private initPublicRoutes(): void {
     this.app.get('/', (request, response) => this.routeHandler.index(request, response));
+    this.app.get('/ping', (request, response) => {
+      response.json('======== Everything okay! ========');
+    });
+    this.app.get('/make-credential', (request, response) => this.routeHandler.getMakeCredential(request, response));
+    this.app.post('/make-credential', (request, response) => this.routeHandler.postMakeCredential(request, response));
+    this.app.post('/fido-register', (request, response) => {
+      Logger.debug('Received "fido-register"', request.body);
+      this.routeHandler.fido(request, response);
+    });
     this.app.get('/reset', (request, response) => this.routeHandler.reset(request, response));
     this.app.post('/login', (request, response) => this.routeHandler.login(request, response)); // Sends token
     this.app.post('/confirm-login', (request, response) => this.routeHandler.login2(request, response));

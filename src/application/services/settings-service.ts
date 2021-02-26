@@ -69,36 +69,37 @@ export class SettingsService extends SettingsHandler {
     if (!initValues) {
       throw new AuthenticationException('Any initial values has to be given!');
     }
-    Logger.debug('AuthenticationTypes:', types);
-    Logger.debug('InitialValues', initValues);
-    let user = await this.userHandler.getUserByUserId(`${userId}`);
-    user.authenticationTypes = types;
-    user = this.provider.writeAuthenticationValues(user, types, initValues);
-    Logger.debug('New user:', user);
-    await this.userHandler.update(user.userId, user);
-    // const totp = this.provider.getTotpValidator();
-    // totp.checkAuthenticationType(user);
-    const answer: Authentication.InitialValues = {};
-    if (types.includes(AuthenticationType.TOTP)) {
-      answer.totpUri = Authentication.otpToUri({
-        type: 'totp',
-        to: user.username,
-        issuer: 'OpenSlides',
-        secret: user.totpSecret as string,
-        period: 30,
-        digits: 6
-      });
-    }
-    if (types.includes(AuthenticationType.EMAIL)) {
-      answer.emailSecret = user.emailSecret;
-    }
-    if (types.includes(AuthenticationType.PASSWORD)) {
-      answer.password = user.password;
-    }
-    if (types.includes(AuthenticationType.BIOMETRICS)) {
-      answer.biometrics = user.biometrics;
-    }
-    return answer;
+    throw new Error('Not implemented!');
+    // Logger.debug('AuthenticationTypes:', types);
+    // Logger.debug('InitialValues', initValues);
+    // let user = await this.userHandler.getUserByUserId(`${userId}`);
+    // user.authenticationTypes = types;
+    // user = this.provider.writeAuthenticationValues(user);
+    // Logger.debug('New user:', user);
+    // await this.userHandler.update(user.userId, user);
+    // // const totp = this.provider.getTotpValidator();
+    // // totp.checkAuthenticationType(user);
+    // const answer: Authentication.InitialValues = {};
+    // if (types.includes(AuthenticationType.TOTP)) {
+    //   answer.totpUri = Authentication.otpToUri({
+    //     type: 'totp',
+    //     to: user.username,
+    //     issuer: 'OpenSlides',
+    //     secret: user.totpSecret as string,
+    //     period: 30,
+    //     digits: 6
+    //   });
+    // }
+    // if (types.includes(AuthenticationType.EMAIL)) {
+    //   answer.emailSecret = user.emailSecret;
+    // }
+    // if (types.includes(AuthenticationType.PASSWORD)) {
+    //   answer.password = user.password;
+    // }
+    // if (types.includes(AuthenticationType.BIOMETRICS)) {
+    //   answer.biometrics = user.biometrics;
+    // }
+    // return answer;
   }
 
   public setAuthenticationMethodOfOthers(types: AuthenticationType[]): Promise<void> {
@@ -107,7 +108,7 @@ export class SettingsService extends SettingsHandler {
 
   public async confirmTotp(userId: string, code: string): Promise<void> {
     const user = await this.userHandler.getUserByUserId(userId);
-    const totp = this.provider.getTotpValidator();
-    totp.checkAuthenticationType(user, code);
+    // const totp = this.provider.getTotpValidator();
+    // totp.checkAuthenticationType(user, code);
   }
 }

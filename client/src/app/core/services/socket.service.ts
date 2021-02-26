@@ -74,6 +74,7 @@ export class SocketService {
             return;
         }
         const date = { type, message, to };
+        console.log('Send message to server:', date);
         this.websocket.send(JSON.stringify(date));
     }
 

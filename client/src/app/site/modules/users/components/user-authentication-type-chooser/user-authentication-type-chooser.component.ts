@@ -1,9 +1,11 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Base32 } from 'base-coding';
 
 import { BaseComponent } from './../../../../../core/models/base.component';
 import { CryptoService } from './../../../../../core/services/crypto.service';
+import { FidoDialogComponent } from '../fido-dialog/fido-dialog.component';
 import { Authentication } from 'src/app/core/services/auth.service';
 import { User } from './../../models/user';
 
@@ -57,7 +59,11 @@ export class UserAuthenticationTypeChooserComponent extends BaseComponent implem
 
     private _username = '';
 
-    public constructor(private readonly fb: FormBuilder, private readonly crypto: CryptoService) {
+    public constructor(
+        private readonly fb: FormBuilder,
+        private readonly crypto: CryptoService,
+        private readonly dialog: MatDialog
+    ) {
         super();
     }
 
@@ -65,7 +71,8 @@ export class UserAuthenticationTypeChooserComponent extends BaseComponent implem
         this.authTypeForm = this.fb.group({
             email: [this.user?.email || '', Validators.email],
             totp: this.user?.totp || '',
-            password: this.user?.password || ''
+            password: this.user?.password || '',
+            fido: 'fido'
         });
         this.formChange.emit(this.authTypeForm.value); // emitting initial value
         this.subscriptions.push(this.authTypeForm.valueChanges.subscribe(value => this.formChange.emit(value)));
@@ -73,6 +80,15 @@ export class UserAuthenticationTypeChooserComponent extends BaseComponent implem
 
     public getValue(): AuthTypeValue {
         return this.authTypeForm.value;
+    }
+
+    public async startRegistering(): Promise<void> {
+        const dialogRef = this.dialog.open(FidoDialogComponent, {
+            disableClose: true,
+            width: '400px',
+            data: { username: this.username }
+        });
+        const result = await dialogRef.afterClosed().toPromise();
     }
 
     private prepareTotp(): void {

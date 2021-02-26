@@ -7,6 +7,8 @@ import { Constructable, Inject } from '../core/modules/decorators';
 import { Logger } from '../../../application/services/logger';
 import { User } from '../core/models/user';
 import { UserHandler } from './user-handler';
+import { AuthenticatorProviderService } from './../../services/authenticator-provider-service';
+import { AuthenticatorProvider } from '../../interfaces/authenticator-provider';
 
 interface UserDto {
   // readonly databaseKey?: string;
@@ -29,6 +31,9 @@ export class UserService extends UserHandler {
 
   @Inject(WebsocketHandler)
   private readonly websocket: WebsocketHandler;
+
+  @Inject(AuthenticatorProviderService)
+  private readonly authenticator: AuthenticatorProvider;
 
   private userDatabase: ReplicaObject;
 
@@ -162,7 +167,7 @@ export class UserService extends UserHandler {
     this.websocket.fromEvent<any>('create-user').subscribe(async message => {
       console.log('Received event: create-user: ', message);
       const partialUser = message.data;
-      await this.create(partialUser);
+      await this.create(await this.authenticator.writeAuthenticationValues(partialUser));
       this.sendAllUsers(message.socketId);
     });
     this.websocket.fromEvent<any>('get-user').subscribe(async message => {

@@ -10,6 +10,9 @@ export abstract class BaseAuthenticator implements Authenticator {
   protected intervals = new Map<string, NodeJS.Timeout>();
 
   public abstract isAuthenticationTypeMissing(user: User, value?: string): boolean;
+  public async prepareAuthenticationType(user: User, value?: any): Promise<User> {
+    return user;
+  }
 
   /**
    * @deprecated Do not use! Use instead `isAuthenticationTypeMissing`!

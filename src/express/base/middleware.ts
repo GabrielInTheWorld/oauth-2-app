@@ -11,7 +11,8 @@ export abstract class Middleware {
     response: Response,
     code: number = 200,
     data: HttpData = {},
-    reason?: string
+    reason?: string,
+    onlyData: boolean = false
   ): void {
     if (response.locals['newToken']) {
       Logger.debug('Set a new token: ', response.locals['newToken']);
@@ -27,11 +28,15 @@ export abstract class Middleware {
     }
     Logger.debug(`Successful: ${code} ${success} --- Message: ${message}`);
     Logger.debug(`Send data:`, data);
-    response.status(code).send({
-      success,
-      message,
-      reason,
-      ...data
-    });
+    if (onlyData) {
+      response.status(code).json(data);
+    } else {
+      response.status(code).send({
+        success,
+        message,
+        reason,
+        ...data
+      });
+    }
   }
 }

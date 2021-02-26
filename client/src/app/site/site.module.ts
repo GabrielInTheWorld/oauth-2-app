@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
+import { AuthSiteComponent } from './modules/auth-site/auth-site.component';
 import { LoginSiteComponent } from './modules/login-site/login-site.component';
 import { SiteComponentsModule } from './components/site-components.module';
 import { SiteRoutingModule } from './site-routing.module';
@@ -11,6 +12,6 @@ import { UsersModule } from './modules/users/users.module';
 @NgModule({
     exports: [SiteComponent, LoginSiteComponent],
     imports: [UIModule, SiteRoutingModule, CommonModule, SiteComponentsModule, UsersModule],
-    declarations: [SiteComponent, LoginSiteComponent]
+    declarations: [SiteComponent, LoginSiteComponent, AuthSiteComponent]
 })
 export class SiteModule {}

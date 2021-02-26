@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { WebAuthnApp } from 'webauthn-simple-app';
 
 import { HttpService } from 'src/app/core/services/http.service';
 import { SocketService } from 'src/app/core/services/socket.service';
@@ -12,6 +13,10 @@ export const AuthenticationTypeVerboseName = {
     hotp: 'Hotp',
     email: 'E-Mail',
     fido: 'FIDO2'
+};
+
+const webAuthnConfig = {
+    timout: 30000
 };
 
 @Injectable({
@@ -42,6 +47,11 @@ export class UsersService {
             return;
         }
         this.websocket.emit('create-user', user);
+        if (user.authenticationTypes.includes('fido')) {
+            // const config = { ...webAuthnConfig, username: user.username };
+            // const result = new WebAuthnApp(config).register();
+            // console.log('result:', result);
+        }
     }
 
     public async update(userId: string, user: Partial<User>): Promise<void> {

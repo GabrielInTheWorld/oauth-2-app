@@ -1,6 +1,7 @@
 export enum AuthenticationType {
   PASSWORD = 'password',
-  BIOMETRICS = 'biometrics',
+  // BIOMETRICS = 'biometrics',
   TOTP = 'totp',
-  EMAIL = 'email'
+  EMAIL = 'email',
+  FIDO = 'fido'
 }

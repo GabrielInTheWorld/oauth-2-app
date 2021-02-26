@@ -1,12 +1,12 @@
-import { TotpAuthenticator } from './../util/authentication/implementations/totp-authenticator';
+// import { TotpAuthenticator } from './../util/authentication/implementations/totp-authenticator';
 import { AuthenticationType } from './../model-layer/user/authentication-types';
 import { User } from './../model-layer/core/models/user';
 import { AuthenticationCredential } from '../model-layer/user/authentication-credential';
 
 export interface AuthenticatorProvider {
   readAuthenticationValues(user: User, types: AuthenticationCredential): void;
-  writeAuthenticationValues(user: User, types: AuthenticationType[], initValues: AuthenticationCredential): User;
+  writeAuthenticationValues(user: User): Promise<User>;
   getAvailableAuthenticationTypes(): AuthenticationType[];
 
-  getTotpValidator(): TotpAuthenticator;
+  // getTotpValidator(): TotpAuthenticator;
 }
