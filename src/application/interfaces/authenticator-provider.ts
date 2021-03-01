@@ -4,7 +4,7 @@ import { User } from './../model-layer/core/models/user';
 import { AuthenticationCredential } from '../model-layer/user/authentication-credential';
 
 export interface AuthenticatorProvider {
-  readAuthenticationValues(user: User, types: AuthenticationCredential): void;
+  readAuthenticationValues(user: User, types: AuthenticationCredential): Promise<void>;
   writeAuthenticationValues(user: User): Promise<User>;
   getAvailableAuthenticationTypes(): AuthenticationType[];
 

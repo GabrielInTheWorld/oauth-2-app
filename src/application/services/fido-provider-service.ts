@@ -2,7 +2,7 @@ import { MakeCredentialResponse } from './../model-layer/core/models/fido/index'
 import cbor from 'cbor';
 import CBOR from 'cbor-sync';
 import * as vanillacbor from '../util/helper/vanilla-cbor';
-// import { AttestationResult, ExpectedAttestationResult, Fido2Lib } from 'fido2-library';
+import { AttestationResult, ExpectedAttestationResult, Fido2Lib } from 'fido2-library';
 import { WebsocketHandler } from 'reactive-websocket';
 import { Base64 } from 'base-coding';
 
@@ -11,6 +11,7 @@ import { UserHandler } from '../model-layer/user/user-handler';
 import { UserService } from '../model-layer/user/user-service';
 import { Random } from '../util/helper';
 import { Logger } from './logger';
+import { Fido } from '../util/authentication/services/fido-service';
 
 enum FidoAuthenticationStep {
   REQUEST = 'request',
@@ -34,7 +35,9 @@ interface CredentialLike {
 }
 
 const parseAuthData = (buffer: Buffer) => {
-  if (buffer.byteLength < 37) throw new Error('Authenticator Data must be at least 37 bytes long!');
+  if (buffer.byteLength < 37) {
+    throw new Error('Authenticator Data must be at least 37 bytes long!');
+  }
 
   let rpIdHash = buffer.slice(0, 32);
   buffer = buffer.slice(32);
@@ -62,10 +65,11 @@ const parseAuthData = (buffer: Buffer) => {
 
   if (at) {
     // Attested Data
-    if (buffer.byteLength < attestationMinLen)
+    if (buffer.byteLength < attestationMinLen) {
       throw new Error(
         `It seems as the Attestation Data flag is set, but the remaining data is smaller than ${attestationMinLen} bytes. You might have set AT flag for the assertion response.`
       );
+    }
 
     aaguid = buffer.slice(0, 16).toString('hex');
     buffer = buffer.slice(16);
@@ -115,14 +119,16 @@ export class FidoProviderService {
   // @Inject(UserService)
   // private readonly userHandler: UserHandler;
 
-  // private readonly f2l = new Fido2Lib({
-  //   challengeSize: 128,
-  //   attestation: 'none',
-  //   cryptoParams: [-7, -257],
-  //   authenticatorAttachment: 'platform',
-  //   authenticatorRequireResidentKey: false,
-  //   authenticatorUserVerification: 'required'
-  // });
+  private readonly f2l = new Fido2Lib({
+    challengeSize: 128,
+    attestation: 'direct',
+    // cryptoParams: [-7, -257],
+    cryptoParams: [-7],
+    authenticatorAttachment: 'cross-platform',
+    authenticatorRequireResidentKey: false,
+    authenticatorUserVerification: 'discouraged',
+    rpName: 'http://localhost:8000'
+  });
 
   private readonly pendingRegister: { [key: string]: string } = {};
 
@@ -142,8 +148,8 @@ export class FidoProviderService {
   }
 
   public async createOptions(): Promise<any> {
-    throw new Error('Todo');
-    // return await this.f2l.attestationOptions();
+    // throw new Error('Todo');
+    return await this.f2l.attestationOptions();
   }
 
   public createOptionsInstantly(args: { userId?: string; username: string }): any {
@@ -207,12 +213,31 @@ export class FidoProviderService {
   }
 
   public async register(username: string, userId?: string): Promise<any> {
-    return new Promise(resolve => {
-      const publicKeyCredentialCreationOptions = this.createOptionsInstantly({ username, userId });
+    return new Promise(async resolve => {
+      const publicKeyCredentialCreationOptions = await this.createOptions();
+      const id = userId || Random.id();
+      console.log('id:', id);
+      publicKeyCredentialCreationOptions.user = {
+        id: Base64.encode(id),
+        // id: Buffer.from(id).toString('base64'),
+        name: username,
+        displayName: username
+      };
+      // publicKeyCredentialCreationOptions.user.id = Buffer.from(publicKeyCredentialCreationOptions.user.id).toString(
+      //   'base64'
+      // );
+      this.pendingRegister[id] = publicKeyCredentialCreationOptions.challenge;
+      publicKeyCredentialCreationOptions.challenge = Buffer.from(publicKeyCredentialCreationOptions.challenge).toString(
+        'base64'
+      );
+      // const publicKeyCredentialCreationOptions = this.createOptionsInstantly({ username, userId });
       const subscription = this.websocket
         .broadcastAll<any>({
           event: 'fido-register',
-          data: { event: FidoAuthenticationStep.CHALLENGE, content: publicKeyCredentialCreationOptions }
+          data: {
+            event: FidoAuthenticationStep.CHALLENGE,
+            content: { publicKeyCredentialCreationOptions, userId: id }
+          }
         })
         .subscribe(message => {
           resolve(this.onChallenge(message.socketId, message.data));
@@ -248,7 +273,32 @@ export class FidoProviderService {
       return;
     }
     // return this.decode2(request.content.credential);
-    return this.decode(request);
+    // return this.decode(request);
+    return this.validateAttestation(request.content.credential, request.content.userId);
+  }
+
+  private async validateAttestation(receivedResult: any, userId: any): Promise<any> {
+    console.log('receivedResult', receivedResult);
+    console.log('id', userId);
+    console.log('pendingusers:', this.pendingRegister);
+    // receivedResult.response.clientDataJSON = Buffer.from(receivedResult.response.clientDataJSON, 'base64');
+    // receivedResult.response.clientDataJSON = Base64.decode(receivedResult.response.clientDataJSON);
+    // receivedResult.response.attestationObject = Buffer.from(receivedResult.response.attestationObject, 'base64');
+    receivedResult.id = receivedResult.id;
+    receivedResult.rawId = Uint8Array.from(receivedResult.rawId, (c: any) => c.charCodeAt(0)).buffer;
+    console.log('receivedResult after converting:', receivedResult);
+
+    const expectedResult: any = {
+      challenge: this.pendingRegister[userId],
+      origin: 'http://localhost:4200',
+      factor: 'either'
+    };
+    const result = await this.f2l.attestationResult(receivedResult, expectedResult);
+    return {
+      publicKeyPem: result.authnrData.get('credentialPublicKeyPem'),
+      counter: result.authnrData.get('counter'),
+      credentialId: Buffer.from(result.authnrData.get('credId'))
+    };
   }
 
   private decode2(credential: CredentialLike): any {

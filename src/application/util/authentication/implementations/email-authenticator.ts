@@ -6,14 +6,12 @@ import { AuthenticationException } from '../../../model-layer/core/exceptions/au
 import { BaseAuthenticator } from './base-authenticator';
 import { User } from './../../../model-layer/core/models/user';
 import { Random } from '../../helper';
+import { AuthenticatorValidationResult } from '../interfaces/authenticator';
 
 export class EmailAuthenticator extends BaseAuthenticator {
   private sendMailFn = sendmail({});
 
-  public isAuthenticationTypeMissing(
-    user: User,
-    value?: string
-  ): { missing: boolean; additionalData?: { [key: string]: any } } {
+  public async isAuthenticationTypeMissing(user: User, value?: string): Promise<AuthenticatorValidationResult> {
     if (!value) {
       this.prepareEmailAuthentication(user);
       return { missing: true };

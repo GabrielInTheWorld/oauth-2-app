@@ -9,6 +9,7 @@ import { User } from '../model-layer/core/models/user';
 import { AuthenticationCredential } from '../model-layer/user/authentication-credential';
 import { AuthenticationType } from '../model-layer/user/authentication-types';
 import { Authenticator } from '../util/authentication/interfaces/authenticator';
+import { Logger } from './logger';
 
 export class AuthenticatorProviderService implements AuthenticatorProvider {
   private readonly authenticators: { [key in AuthenticationType]?: Authenticator } = {
@@ -18,7 +19,8 @@ export class AuthenticatorProviderService implements AuthenticatorProvider {
     fido: new FidoAuthenticator()
   };
 
-  public readAuthenticationValues(user: User, values: AuthenticationCredential): void {
+  public async readAuthenticationValues(user: User, values: AuthenticationCredential): Promise<void> {
+    Logger.warn('readAuthenticationValues');
     const missingTypes: { [key in AuthenticationType]?: { [key: string]: any } } = {};
 
     if (!Object.keys(this.authenticators).length) {
@@ -28,7 +30,7 @@ export class AuthenticatorProviderService implements AuthenticatorProvider {
       if (!this.authenticators[key]) {
         throw new AuthenticationException(`Authenticator ${key} not provided!`);
       }
-      const result = this.authenticators[key]?.isAuthenticationTypeMissing(user, values[key]);
+      const result = await this.authenticators[key]?.isAuthenticationTypeMissing(user, values[key]);
       if (result?.missing) {
         missingTypes[key] = result.additionalData;
       }

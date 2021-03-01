@@ -5,6 +5,9 @@ import * as QrCodeStyling from 'qr-code-styling';
 
 import { TwoFactorAuthService } from './../../../core/services/two-factor-auth.service';
 
+/**
+ * @deprecated
+ */
 @Component({
     selector: 'app-two-auth-helper',
     templateUrl: './two-auth-helper.component.html',
@@ -63,11 +66,11 @@ export class TwoAuthHelperComponent implements OnInit {
         // console.log('answer', answer);
         // const totpUri = answer.totpUri;
         const totpUri = this.twoFactorAuth.confirmNextAuthenticationMethods(formControl.value);
-        const qrCode: HTMLElement = new QrCodeStyling({
-            data: totpUri
-        });
-        // this.qrCode = qrCode;
-        qrCode.append(document.querySelector('#canvas'));
+        // const qrCode: HTMLElement = new QrCodeStyling({
+        //     data: totpUri
+        // });
+        // // this.qrCode = qrCode;
+        // qrCode.append(document.querySelector('#canvas'));
         this.qrCode = true;
     }
 

@@ -91,13 +91,15 @@ export class FidoAuthenticatorService {
         }
         console.log('login procedure', credentialOptions);
         const credentials: any = await navigator.credentials.get({ publicKey: credentialOptions });
+        console.log('credentials from get', credentials);
         return {
             id: credentials.id,
             rawId: this.toString(credentials.rawId),
             response: {
                 authenticatorData: this.toString(credentials.response.authenticatorData),
                 clientDataJSON: this.toString(credentials.response.clientDataJSON),
-                signature: this.toString(credentials.response.signature)
+                signature: this.toString(credentials.response.signature),
+                userHandle: this.toString(credentials.response.userHandle)
             },
             type: credentials.type
         };
@@ -106,19 +108,23 @@ export class FidoAuthenticatorService {
     private async onRegister(answer: FidoAuthentication, username?: string): Promise<void> {
         switch (answer.event) {
             case FidoAuthenticationStep.CHALLENGE:
-                const credential = await this.onAnswerFromServer(answer.content, username, pubCredential => {
-                    // console.log('pubCredential', pubCredential);
-                    // this.http.post('fido-register', pubCredential);
-                    // this.socket.emit('fido-register', {
-                    //     event: FidoAuthenticationStep.CREDENTIAL,
-                    //     content: { credential: pubCredential }
-                    // });
-                });
+                const credential = await this.onAnswerFromServer(
+                    answer.content.publicKeyCredentialCreationOptions,
+                    username,
+                    pubCredential => {
+                        // console.log('pubCredential', pubCredential);
+                        // this.http.post('fido-register', pubCredential);
+                        // this.socket.emit('fido-register', {
+                        //     event: FidoAuthenticationStep.CREDENTIAL,
+                        //     content: { credential: pubCredential }
+                        // });
+                    }
+                );
                 // console.log('sending the following credential to server:', credential);
                 // this.http.post('fido-register', { credential });
                 this.socket.emit('fido-register', {
                     event: FidoAuthenticationStep.CREDENTIAL,
-                    content: { credential }
+                    content: { credential, userId: answer.content.userId }
                 });
                 break;
         }

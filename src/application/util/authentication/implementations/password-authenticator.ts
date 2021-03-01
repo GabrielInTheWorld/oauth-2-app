@@ -2,12 +2,10 @@ import { AuthenticationException } from '../../../model-layer/core/exceptions/au
 import { BaseAuthenticator } from './base-authenticator';
 import { Logger } from './../../../services/logger';
 import { User } from './../../../model-layer/core/models/user';
+import { AuthenticatorValidationResult } from '../interfaces/authenticator';
 
 export class PasswordAuthenticator extends BaseAuthenticator {
-  public isAuthenticationTypeMissing(
-    user: User,
-    value?: string
-  ): { missing: boolean; additionalData?: { [key: string]: any } } {
+  public async isAuthenticationTypeMissing(user: User, value?: string): Promise<AuthenticatorValidationResult> {
     Logger.debug(`Check a new user with user userId: ${user.userId}: `, user);
     if (!value) {
       Logger.debug('Password not provided!');

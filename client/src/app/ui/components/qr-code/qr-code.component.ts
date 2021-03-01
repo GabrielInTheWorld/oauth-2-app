@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild, ElementRef } from '@angular/core';
-import * as QrCodeStyling from 'qr-code-styling';
+import QrCodeStyling from 'qr-code-styling';
 
 @Component({
     selector: 'app-qr-code',
@@ -33,7 +33,7 @@ export class QrCodeComponent implements OnInit {
         if (this._changed) {
             this.canvasWrapper.nativeElement.removeChild(this.canvasWrapper.nativeElement.firstChild);
         }
-        const qrCode: HTMLElement = new QrCodeStyling({
+        const qrCode: any = new QrCodeStyling({
             data: this.value,
             width: 200,
             height: 200

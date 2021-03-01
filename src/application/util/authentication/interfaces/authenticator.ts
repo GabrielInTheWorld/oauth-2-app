@@ -1,5 +1,10 @@
 import { User } from './../../../model-layer/core/models/user';
 
+export interface AuthenticatorValidationResult {
+  missing: boolean;
+  additionalData?: { [key: string]: any };
+}
+
 export interface Authenticator {
   /**
    * During authentication process, through this function a user-object is checked, if an authentication type is
@@ -10,10 +15,7 @@ export interface Authenticator {
    *
    * @returns It returns a boolean to summarize, which authentication types are not provided.
    */
-  isAuthenticationTypeMissing(
-    user: User,
-    value?: string
-  ): { missing: boolean; additionalData?: { [key: string]: any } };
+  isAuthenticationTypeMissing(user: User, value?: string): Promise<AuthenticatorValidationResult>;
 
   /**
    * During creation process, through this function a user-object is prepared

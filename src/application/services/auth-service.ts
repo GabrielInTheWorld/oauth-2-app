@@ -33,7 +33,7 @@ export class AuthService implements AuthHandler {
   public async login(username: string, password?: string): Promise<Validation<Ticket>> {
     try {
       const user = await this.userHandler.getUserByUsername(username);
-      this.provider.readAuthenticationValues(user, { password });
+      await this.provider.readAuthenticationValues(user, { password });
       return await this.ticketHandler.create(user);
     } catch (e) {
       Logger.error(e);
@@ -51,7 +51,9 @@ export class AuthService implements AuthHandler {
   ): Promise<Validation<Ticket>> {
     try {
       const user = await this.userHandler.getUserByUsername(username);
-      this.provider.readAuthenticationValues(user, additional);
+      Logger.warn('user:', user);
+      await this.provider.readAuthenticationValues(user, additional);
+      Logger.warn('after provider service');
       return await this.ticketHandler.create(user);
     } catch (e) {
       Logger.error(e);

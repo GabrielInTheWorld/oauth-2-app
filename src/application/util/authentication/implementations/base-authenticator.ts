@@ -1,4 +1,4 @@
-import { Authenticator } from '../interfaces/authenticator';
+import { Authenticator, AuthenticatorValidationResult } from '../interfaces/authenticator';
 import { User } from './../../../model-layer/core/models/user';
 import { HotpService, TotpService } from 'final-otp';
 
@@ -9,10 +9,7 @@ export abstract class BaseAuthenticator implements Authenticator {
   protected currentlyPendingUsers = new Map<string, User>();
   protected intervals = new Map<string, NodeJS.Timeout>();
 
-  public abstract isAuthenticationTypeMissing(
-    user: User,
-    value?: string
-  ): { missing: boolean; additionalData?: { [key: string]: any } };
+  public abstract isAuthenticationTypeMissing(user: User, value?: string): Promise<AuthenticatorValidationResult>;
   public async prepareAuthenticationType(user: User, value?: any): Promise<User> {
     return user;
   }

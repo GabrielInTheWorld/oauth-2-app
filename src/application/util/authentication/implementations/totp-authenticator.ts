@@ -3,12 +3,10 @@ import { BaseAuthenticator } from './base-authenticator';
 import { Logger } from './../../../services/logger';
 import { User } from './../../../model-layer/core/models/user';
 import { Authentication } from '../authentication';
+import { AuthenticatorValidationResult } from '../interfaces/authenticator';
 
 export class TotpAuthenticator extends BaseAuthenticator {
-  public isAuthenticationTypeMissing(
-    user: User,
-    value?: string
-  ): { missing: boolean; additionalData?: { [key: string]: any } } {
+  public async isAuthenticationTypeMissing(user: User, value?: string): Promise<AuthenticatorValidationResult> {
     if (!value) {
       this.prepareTotpAuthentication(user);
       return { missing: true };

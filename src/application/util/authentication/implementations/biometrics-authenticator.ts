@@ -3,12 +3,10 @@ import { AuthenticationType } from '../../../model-layer/user/authentication-typ
 import { BaseAuthenticator } from './base-authenticator';
 import { MissingAuthenticationException } from '../../../model-layer/core/exceptions/missing-authentication-exception';
 import { User } from './../../../model-layer/core/models/user';
+import { AuthenticatorValidationResult } from '../interfaces/authenticator';
 
 export class BiometricsAuthenticator extends BaseAuthenticator {
-  public isAuthenticationTypeMissing(
-    user: User,
-    value?: string
-  ): { missing: boolean; additionalData?: { [key: string]: any } } {
+  public isAuthenticationTypeMissing(user: User, value?: string): Promise<AuthenticatorValidationResult> {
     throw new Error('Method not implemented.');
   }
 }

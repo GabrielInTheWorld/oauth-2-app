@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 export namespace Random {
-  export function id(length: number = 32): string {
+  export function id(length: number = 8): string {
     return cryptoKey(length);
   }
 

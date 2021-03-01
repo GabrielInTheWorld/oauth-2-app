@@ -1,6 +1,7 @@
 import { CredentialLikeLogin } from './../../../model-layer/core/models/fido/index';
 import CBOR from 'cbor-sync';
 import cbor from 'cbor';
+import { Fido2Lib } from 'fido2-library';
 
 import { Random } from '../../helper';
 import { User } from '../../../model-layer/core/models/user';
@@ -12,6 +13,7 @@ import {
 } from '../../../model-layer/core/models/fido';
 import { CryptoService } from '../../helper/crypto';
 import crypto from 'crypto';
+import { Base64 } from 'base-coding';
 
 // interface PublicKeyCredentialCreationOptions {
 //   rp: PublicKeyCredentialRpEntity;
@@ -119,6 +121,19 @@ const COSEECDHAtoPKCS = (COSEPublicKey: Buffer): Buffer => {
 };
 
 export class Fido {
+  private static readonly pendingUsers: { [key: string]: any } = {};
+
+  private static readonly f2l = new Fido2Lib({
+    challengeSize: 128,
+    attestation: 'direct',
+    // cryptoParams: [-7, -257],
+    cryptoParams: [-7],
+    authenticatorAttachment: 'cross-platform',
+    authenticatorRequireResidentKey: false,
+    authenticatorUserVerification: 'discouraged',
+    rpName: 'http://localhost:8000'
+  });
+
   public static getRegisterOptions(args: RegisterOptions): PublicKeyCredentialCreationOptions {
     return {
       challenge: this.createChallenge(),
@@ -167,6 +182,52 @@ export class Fido {
       timeout: 60000
     };
     return publicKeyCredentialRequestOptions;
+  }
+
+  public static async getLoginOptionsLib(user: User): Promise<any> {
+    if (!user.fido) {
+      return;
+    }
+    const result: any = await this.f2l.assertionOptions();
+    console.log('result', result);
+    this.pendingUsers[user.userId] = result.challenge;
+    result.challenge = this.bufferToString(result.challenge);
+    // result.challenge = new Uint8Array(result.challenge);
+    result.allowCredentials = [
+      {
+        id: Buffer.from(
+          Uint8Array.from(Buffer.from(user.fido?.credentialId, 'base64').toString('hex'), (c: string) =>
+            c.charCodeAt(0)
+          )
+        ).toString('base64'),
+        type: 'public-key',
+        transports: ['usb', 'ble', 'nfc']
+      }
+    ];
+    return result;
+  }
+
+  public static async isSignatureValidLib(user: User, credential: any): Promise<boolean> {
+    const assertionExpectations: any = {
+      challenge: this.bufferToString(this.pendingUsers[user.userId]),
+      origin: 'http://localhost:4200',
+      factor: 'either',
+      publicKey: (user.fido as any).publicKeyPem,
+      prevCounter: (user.fido as any).counter,
+      userHandle: ''
+    };
+
+    console.log('credentials to assert:', credential);
+    const clientDataJSON = JSON.parse(Base64.decode(credential.response.clientDataJSON));
+    console.log('challenge:', Buffer.from(clientDataJSON.challenge, 'base64'));
+    console.log('assertionExpectations', assertionExpectations);
+    console.log('pendingUsers', this.pendingUsers);
+
+    credential.rawId = Uint8Array.from(credential.rawId, (c: any) => c.charCodeAt(0)).buffer;
+
+    const result = await this.f2l.assertionResult(credential, assertionExpectations);
+    console.log('result:', result);
+    return true;
   }
 
   public static isSignatureValid(user: User, credential: CredentialLikeLogin): boolean {
@@ -284,7 +345,21 @@ export class Fido {
   }
 
   private static createChallenge(): string {
-    return Buffer.from(Uint8Array.from(Random.cryptoKey(), c => c.charCodeAt(0))).toString('base64');
+    return this.stringToBase64Buffer(Random.cryptoKey());
+    // return Buffer.from(Uint8Array.from(Random.cryptoKey(), c => c.charCodeAt(0))).toString('base64');
+  }
+
+  private static stringToBase64Buffer(buffer: string): string {
+    return Buffer.from(Uint8Array.from(buffer, c => c.charCodeAt(0))).toString('base64');
+  }
+
+  public static bufferToString(buffer: ArrayBuffer): string {
+    // const byteArray = new Uint8Array(buffer).forEach(byte => byte);
+    const encoded = Buffer.from(
+      new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    ).toString('base64');
+    return encoded;
+    // return Buffer.from(encoded).toString('base64');
   }
 }
 
