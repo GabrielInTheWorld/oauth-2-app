@@ -5,10 +5,13 @@ import { User } from './../../../model-layer/core/models/user';
 import { Authentication } from '../authentication';
 
 export class TotpAuthenticator extends BaseAuthenticator {
-  public isAuthenticationTypeMissing(user: User, value?: string): boolean {
+  public isAuthenticationTypeMissing(
+    user: User,
+    value?: string
+  ): { missing: boolean; additionalData?: { [key: string]: any } } {
     if (!value) {
       this.prepareTotpAuthentication(user);
-      return true;
+      return { missing: true };
     }
     const pendingUser = this.currentlyPendingUsers.get(user.userId);
     const otpValues = Authentication.uriToOtp(pendingUser?.totp as string);
@@ -16,7 +19,7 @@ export class TotpAuthenticator extends BaseAuthenticator {
       throw new AuthenticationException('TOTP codes do not match!');
     }
     this.doCleanUp(user.userId);
-    return false;
+    return { missing: false };
   }
 
   private prepareTotpAuthentication(user: User): void {

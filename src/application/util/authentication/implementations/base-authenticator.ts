@@ -9,7 +9,10 @@ export abstract class BaseAuthenticator implements Authenticator {
   protected currentlyPendingUsers = new Map<string, User>();
   protected intervals = new Map<string, NodeJS.Timeout>();
 
-  public abstract isAuthenticationTypeMissing(user: User, value?: string): boolean;
+  public abstract isAuthenticationTypeMissing(
+    user: User,
+    value?: string
+  ): { missing: boolean; additionalData?: { [key: string]: any } };
   public async prepareAuthenticationType(user: User, value?: any): Promise<User> {
     return user;
   }

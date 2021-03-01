@@ -39,6 +39,13 @@
                 <input matInput formControlName="totp" placeholder="Code" [appAutofocus]="true" />
             </mat-form-field>
         </form>
+        <ng-container *ngIf="requiredAuthenticationFactors.includes('fido')">
+            <div class="flex-center fido-container">
+                <h3>Fido:</h3>
+                <mat-icon>{{ fidoCredentials ? 'done' : 'close' }}</mat-icon>
+            </div>
+            <!-- <app-fido-login [username]="username" [data]="requiredAuthenticationData"></app-fido-login> -->
+        </ng-container>
         <div>
             <button mat-raised-button color="primary" [disabled]="authForm.invalid" (click)="confirmLogin()">
                 Bestätigen

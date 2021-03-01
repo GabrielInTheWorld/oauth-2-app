@@ -42,9 +42,20 @@ export class FidoAuthenticatorService {
         private readonly socket: SocketService,
         private readonly crypto: CryptoService,
         private http: HttpService
-    ) {}
+    ) {
+        this.socket
+            .fromEvent('fido-register')
+            // .emit<FidoAuthentication, FidoAuthentication>('fido-register', {
+            //     event: FidoAuthenticationStep.REQUEST,
+            //     content: { username, userId }
+            // })
+            .subscribe((answer: any) => {
+                console.log('answer from server', answer);
+                this.onRegister(answer);
+            });
+    }
 
-    public register(username: string): void {
+    public register(username: string, userId?: string): void {
         // this.http.get('make-credential').then(async (answer: any) => {
         //     console.log('answer from http:', answer);
 
@@ -60,14 +71,39 @@ export class FidoAuthenticatorService {
         //     this.http.post('make-credential', credential).then(created => console.log('after posting:', created));
         // });
         this.socket
-            .emit<FidoAuthentication, FidoAuthentication>('fido-register', { event: FidoAuthenticationStep.REQUEST })
+            .emit<FidoAuthentication, FidoAuthentication>('fido-register', {
+                event: FidoAuthenticationStep.REQUEST,
+                content: { username, userId }
+            })
             .subscribe(answer => {
                 console.log('answer from server', answer);
                 this.onRegister(answer, username);
             });
     }
 
-    private async onRegister(answer: FidoAuthentication, username: string): Promise<void> {
+    public async login(credentialOptions: any): Promise<any> {
+        const fromHexString = hexString => new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        credentialOptions.challenge = this.base64ToBuffer(credentialOptions.challenge);
+        // credentialOptions.challenge = Uint8Array.from(atob(credentialOptions.challenge), (c) => c.charCodeAt(0));
+        for (const allowCredentials of credentialOptions.allowCredentials) {
+            allowCredentials.id = fromHexString(atob(allowCredentials.id));
+            // allowCredentials.id = this.base64ToBuffer(allowCredentials.id);
+        }
+        console.log('login procedure', credentialOptions);
+        const credentials: any = await navigator.credentials.get({ publicKey: credentialOptions });
+        return {
+            id: credentials.id,
+            rawId: this.toString(credentials.rawId),
+            response: {
+                authenticatorData: this.toString(credentials.response.authenticatorData),
+                clientDataJSON: this.toString(credentials.response.clientDataJSON),
+                signature: this.toString(credentials.response.signature)
+            },
+            type: credentials.type
+        };
+    }
+
+    private async onRegister(answer: FidoAuthentication, username?: string): Promise<void> {
         switch (answer.event) {
             case FidoAuthenticationStep.CHALLENGE:
                 const credential = await this.onAnswerFromServer(answer.content, username, pubCredential => {
@@ -90,8 +126,8 @@ export class FidoAuthenticatorService {
 
     private async onAnswerFromServer(
         answer: any,
-        username: string,
-        callback: (credential: any) => void
+        username?: string,
+        callback?: (credential: any) => void
     ): Promise<Credential> {
         const publicKeyCredentialCreationOptions = JSON.parse(JSON.stringify(answer));
         publicKeyCredentialCreationOptions.challenge = atob(publicKeyCredentialCreationOptions.challenge);
@@ -138,13 +174,31 @@ export class FidoAuthenticatorService {
             },
             type: credential.type
         };
-        callback(credentialLike);
+        // const view = new Uint8Array(credential.response.attestationObject);
+        // let result = '';
+        // for (let i = 0; i < view.length; ++i) {
+        //     result = result.concat(view[i].toString(), ' ');
+        // }
+        // console.log('attestationObject:\n\r', cbor.decode(credential.response.attestationObject));
+        console.log('attestationObject:\n\r', this.toHex(credential.response.attestationObject));
+        console.log('attestationObject:\n\r', credentialLike.response.attestationObject);
+        // callback(credentialLike);
         return credentialLike;
     }
 
     private toString(buffer: ArrayBuffer): string {
         const encoded = String.fromCharCode.apply(null, new Uint8Array(buffer));
-        console.log('buffer', encoded, btoa(encoded));
+        // console.log('buffer', encoded, btoa(encoded));
         return btoa(encoded);
+    }
+
+    private toHex(buffer: ArrayBuffer): string {
+        return Array.from(new Uint8Array(buffer), byte => {
+            return ('0' + (byte & 0xff).toString(16)).slice(-2);
+        }).join(' ');
+    }
+
+    private base64ToBuffer(base64: string): Uint8Array {
+        return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
     }
 }

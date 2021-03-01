@@ -46,12 +46,22 @@ export class Routes {
     this.app.get('/ping', (request, response) => {
       response.json('======== Everything okay! ========');
     });
+
+    //////////////////////////////////////////////
+    /////////////// FIDO2 ////////////////////////
+    //////////////////////////////////////////////
+
     this.app.get('/make-credential', (request, response) => this.routeHandler.getMakeCredential(request, response));
     this.app.post('/make-credential', (request, response) => this.routeHandler.postMakeCredential(request, response));
     this.app.post('/fido-register', (request, response) => {
       Logger.debug('Received "fido-register"', request.body);
       this.routeHandler.fido(request, response);
     });
+    this.app.post('/fido-login-request', (request, response) => this.routeHandler.fidoLoginRequest(request, response));
+    this.app.post('/fido-login-confirm', (request, response) => this.routeHandler.fidoLoginConfirm(request, response));
+
+    //////////////////////////////////////////////
+
     this.app.get('/reset', (request, response) => this.routeHandler.reset(request, response));
     this.app.post('/login', (request, response) => this.routeHandler.login(request, response)); // Sends token
     this.app.post('/confirm-login', (request, response) => this.routeHandler.login2(request, response));

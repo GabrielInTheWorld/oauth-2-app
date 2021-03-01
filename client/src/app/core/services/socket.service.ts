@@ -67,8 +67,9 @@ export class SocketService {
     }
 
     private send(type: string, message: any, to: string = null): void {
-        if (!this.isConnected) {
-            this.zone.run(() => this.onClose());
+        if (!this.isConnected && this.websocket) {
+            this.websocket.close();
+            // this.zone.run(() => this.onClose());
         }
         if (!this.isConnected) {
             return;
@@ -108,6 +109,11 @@ export class SocketService {
             console.log('closing', event);
             this.websocketConnectionSubject.next(false);
             this.zone.run(() => this.onClose());
+        };
+
+        this.websocket.onerror = event => {
+            console.log('Error:', event);
+            this.websocket.close();
         };
 
         this.websocket.onmessage = event => {

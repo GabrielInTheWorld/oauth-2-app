@@ -21,6 +21,8 @@ export interface AuthTypeValue {
     styleUrls: ['./user-authentication-type-chooser.component.scss']
 })
 export class UserAuthenticationTypeChooserComponent extends BaseComponent implements OnInit {
+    public readonly authenticationModel = { platform: 'Plattformspezifisch', 'cross-platform': 'Plattformunabhängig' };
+
     @Input()
     public set selectedAuthenticationTypes(types: string[]) {
         this.selectedTypes = types;
@@ -72,7 +74,7 @@ export class UserAuthenticationTypeChooserComponent extends BaseComponent implem
             email: [this.user?.email || '', Validators.email],
             totp: this.user?.totp || '',
             password: this.user?.password || '',
-            fido: 'fido'
+            fido: this.user?.fido || 'cross-platform'
         });
         this.formChange.emit(this.authTypeForm.value); // emitting initial value
         this.subscriptions.push(this.authTypeForm.valueChanges.subscribe(value => this.formChange.emit(value)));
@@ -82,14 +84,14 @@ export class UserAuthenticationTypeChooserComponent extends BaseComponent implem
         return this.authTypeForm.value;
     }
 
-    public async startRegistering(): Promise<void> {
-        const dialogRef = this.dialog.open(FidoDialogComponent, {
-            disableClose: true,
-            width: '400px',
-            data: { username: this.username }
-        });
-        const result = await dialogRef.afterClosed().toPromise();
-    }
+    // public async startRegistering(): Promise<void> {
+    //     const dialogRef = this.dialog.open(FidoDialogComponent, {
+    //         disableClose: true,
+    //         width: '400px',
+    //         data: { username: this.username, userId: this.user.userId }
+    //     });
+    //     const result = await dialogRef.afterClosed().toPromise();
+    // }
 
     private prepareTotp(): void {
         if (!this.selectedTypes.includes('totp')) {

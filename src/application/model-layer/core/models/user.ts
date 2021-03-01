@@ -1,6 +1,7 @@
 import { AuthenticationCredential } from './../../user/authentication-credential';
 import { AuthenticationType } from '../../user/authentication-types';
 import { BaseModel } from '../base/base-model';
+import { PublicKeyObject } from './fido';
 
 export class User extends BaseModel<User> {
   public static readonly COLLECTIONSTRING = 'user';
@@ -33,7 +34,7 @@ export class User extends BaseModel<User> {
    */
   public readonly totp?: string;
 
-  public readonly fido?: string;
+  public fido?: PublicKeyObject;
 
   /**
    * @deprecated

@@ -16,11 +16,11 @@ export class AuthenticatorProviderService implements AuthenticatorProvider {
     totp: new TotpAuthenticator(),
     email: new EmailAuthenticator(),
     fido: new FidoAuthenticator()
-    // biometrics: new BiometricsAuthenticator()
   };
 
   public readAuthenticationValues(user: User, values: AuthenticationCredential): void {
-    const missingTypes: AuthenticationType[] = [];
+    const missingTypes: { [key in AuthenticationType]?: { [key: string]: any } } = {};
+
     if (!Object.keys(this.authenticators).length) {
       throw new AuthenticationException('No authenticators provided!');
     }
@@ -28,12 +28,13 @@ export class AuthenticatorProviderService implements AuthenticatorProvider {
       if (!this.authenticators[key]) {
         throw new AuthenticationException(`Authenticator ${key} not provided!`);
       }
-      if (this.authenticators[key]?.isAuthenticationTypeMissing(user, values[key])) {
-        missingTypes.push(key);
+      const result = this.authenticators[key]?.isAuthenticationTypeMissing(user, values[key]);
+      if (result?.missing) {
+        missingTypes[key] = result.additionalData;
       }
     }
-    if (!!missingTypes.length) {
-      throw new MissingAuthenticationException(user, ...missingTypes);
+    if (!!Object.keys(missingTypes).length) {
+      throw new MissingAuthenticationException(user, missingTypes);
     }
   }
 

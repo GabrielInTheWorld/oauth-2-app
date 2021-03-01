@@ -1,10 +1,11 @@
+import { MatDialog } from '@angular/material/dialog';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { WebAuthnApp } from 'webauthn-simple-app';
 
 import { HttpService } from 'src/app/core/services/http.service';
 import { SocketService } from 'src/app/core/services/socket.service';
 import { User } from './../models/user';
+import { FidoAuthenticatorService } from './fido-authenticator.service';
 
 // tslint:disable-next-line: variable-name
 export const AuthenticationTypeVerboseName = {
@@ -26,7 +27,12 @@ export class UsersService {
     private readonly userSubject = new BehaviorSubject<User[]>([]);
     private readonly authenticationTypeSubject = new BehaviorSubject<string[]>([]);
 
-    public constructor(private readonly http: HttpService, private readonly websocket: SocketService) {
+    public constructor(
+        private readonly http: HttpService,
+        private readonly websocket: SocketService,
+        private readonly dialog: MatDialog,
+        private readonly fido: FidoAuthenticatorService
+    ) {
         this.initWebsocketEvents();
     }
 
@@ -96,5 +102,9 @@ export class UsersService {
                 this.authenticationTypeSubject.next(types);
             }
         });
+        // this.websocket.fromEvent('fido-register').subscribe(answer => {
+        //     console.log('answer from server:', answer)
+
+        // })
     }
 }

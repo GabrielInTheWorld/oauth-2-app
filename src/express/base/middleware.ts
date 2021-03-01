@@ -35,7 +35,7 @@ export abstract class Middleware {
         success,
         message,
         reason,
-        ...data
+        data
       });
     }
   }

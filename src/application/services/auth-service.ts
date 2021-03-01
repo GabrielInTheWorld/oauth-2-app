@@ -38,7 +38,8 @@ export class AuthService implements AuthHandler {
     } catch (e) {
       Logger.error(e);
       if (e instanceof MissingAuthenticationException) {
-        return { isValid: false, message: e.message, reason: e.getMissingTypes() };
+        console.log('error in auth:', e.getData());
+        return { isValid: false, message: e.message, reason: e.getMissingTypes(), data: e.getData() };
       }
       return { isValid: false, message: e.message };
     }

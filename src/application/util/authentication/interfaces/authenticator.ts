@@ -10,7 +10,10 @@ export interface Authenticator {
    *
    * @returns It returns a boolean to summarize, which authentication types are not provided.
    */
-  isAuthenticationTypeMissing(user: User, value?: string): boolean;
+  isAuthenticationTypeMissing(
+    user: User,
+    value?: string
+  ): { missing: boolean; additionalData?: { [key: string]: any } };
 
   /**
    * During creation process, through this function a user-object is prepared

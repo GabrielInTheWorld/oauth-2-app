@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { BaseComponent } from 'src/app/core/models/base.component';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { FidoAuthenticatorService } from '../users/services/fido-authenticator.service';
 
 @Component({
     selector: 'app-login-site',
@@ -17,12 +18,19 @@ export class LoginSiteComponent extends BaseComponent implements OnInit {
     public showSpinner = false;
     public authForm: FormGroup;
     public requiredAuthenticationFactors: string[] = [];
+    public requiredAuthenticationData: { [key: string]: any } = {};
 
     public isVisible = false;
 
-    private username = '';
+    public username = '';
 
-    public constructor(private readonly fb: FormBuilder, private readonly auth: AuthService) {
+    public fidoCredentials: any;
+
+    public constructor(
+        private readonly fb: FormBuilder,
+        private readonly auth: AuthService,
+        private readonly fido: FidoAuthenticatorService
+    ) {
         super();
     }
 
@@ -41,7 +49,9 @@ export class LoginSiteComponent extends BaseComponent implements OnInit {
         const failure = await this.auth.login({ username: this.username });
         if (failure && failure.reason) {
             this.requiredAuthenticationFactors = failure.reason;
+            this.requiredAuthenticationData = failure.data;
             this.prepareAuthForm();
+            await this.prepareFido();
         }
         this.showSpinner = false;
     }
@@ -79,5 +89,14 @@ export class LoginSiteComponent extends BaseComponent implements OnInit {
             formGroup[factor] = ['', Validators.required];
         }
         this.authForm = this.fb.group(formGroup);
+    }
+
+    private async prepareFido(): Promise<void> {
+        if (this.requiredAuthenticationData.fido) {
+            const credentials = await this.fido.login(this.requiredAuthenticationData.fido);
+            console.log('credentials', credentials);
+            this.fidoCredentials = credentials;
+            this.authForm.patchValue({ fido: credentials });
+        }
     }
 }

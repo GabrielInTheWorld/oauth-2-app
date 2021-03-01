@@ -10,17 +10,20 @@ import { Random } from '../../helper';
 export class EmailAuthenticator extends BaseAuthenticator {
   private sendMailFn = sendmail({});
 
-  public isAuthenticationTypeMissing(user: User, value?: string): boolean {
+  public isAuthenticationTypeMissing(
+    user: User,
+    value?: string
+  ): { missing: boolean; additionalData?: { [key: string]: any } } {
     if (!value) {
       this.prepareEmailAuthentication(user);
-      return true;
+      return { missing: true };
     }
     const pendingUser = this.currentlyPendingUsers.get(user.userId);
     const hotp = pendingUser?.authenticationCredentials.email as Hotp;
     if (!hotp.verify(value)) {
       throw new AuthenticationException('Email code is not correct!');
     }
-    return false;
+    return { missing: false };
   }
 
   private prepareEmailAuthentication(user: User): void {

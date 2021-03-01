@@ -1,3 +1,4 @@
+import { AuthenticationTypeVerboseName } from './../../services/users.service';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -80,5 +81,9 @@ export class UserDetailDialogComponent extends BaseComponent implements OnInit {
     public isValid(): boolean {
         const dirtyAuthTypes = this.selectedAuthenticationTypes.filter(type => !this.authTypeForm[type]);
         return this.userForm.valid && !dirtyAuthTypes.length;
+    }
+
+    public getVerboseAuthenticationType(type: string): string {
+        return AuthenticationTypeVerboseName[type];
     }
 }

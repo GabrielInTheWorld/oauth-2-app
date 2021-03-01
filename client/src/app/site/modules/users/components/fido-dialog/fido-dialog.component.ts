@@ -5,6 +5,7 @@ import { FidoAuthenticatorService } from './../../services/fido-authenticator.se
 
 interface FidoDialogData {
     username: string;
+    userId?: string;
 }
 
 @Component({
@@ -20,8 +21,16 @@ export class FidoDialogComponent implements OnInit {
     ) {}
 
     public ngOnInit(): void {
+        this.register();
+    }
+
+    public retry(): void {
+        this.register();
+    }
+
+    private register(): void {
         try {
-            this.fidoService.register(this.data.username);
+            this.fidoService.register(this.data.username, this.data.userId);
         } catch (e) {
             console.log('error while registering:', e);
         }

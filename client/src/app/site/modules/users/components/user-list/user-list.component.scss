@@ -9,3 +9,12 @@
         flex-direction: column;
     }
 }
+
+.custom-list {
+    padding: 0;
+
+    .mat-list-item {
+        padding: 8px 0;
+        height: unset;
+    }
+}

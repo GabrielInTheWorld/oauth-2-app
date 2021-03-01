@@ -13,6 +13,8 @@ export class ConfirmOnEnterDirective implements AfterViewInit {
         if (this.element && this.element.nativeElement) {
             this.element.nativeElement.addEventListener('keypress', event => {
                 if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
                     this.appConfirmOnEnter.emit();
                 }
             });

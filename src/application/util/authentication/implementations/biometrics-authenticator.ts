@@ -5,7 +5,10 @@ import { MissingAuthenticationException } from '../../../model-layer/core/except
 import { User } from './../../../model-layer/core/models/user';
 
 export class BiometricsAuthenticator extends BaseAuthenticator {
-  public isAuthenticationTypeMissing(user: User, value?: string): boolean {
+  public isAuthenticationTypeMissing(
+    user: User,
+    value?: string
+  ): { missing: boolean; additionalData?: { [key: string]: any } } {
     throw new Error('Method not implemented.');
   }
 }

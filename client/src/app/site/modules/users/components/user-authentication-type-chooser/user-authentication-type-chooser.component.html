@@ -15,6 +15,14 @@
     </ng-container>
     <ng-container *ngIf="selectedAuthenticationTypes.includes('fido')">
         <h3>Bitte geben Sie einen U2F-kompatiblen USB-Stick oder Ähnliches in Ihren PC ein.</h3>
-        <button mat-raised-button color="secondary" (click)="startRegistering()">Starte Registrierungsprozess</button>
+        <mat-form-field>
+            <mat-label>Authentifizierungsmethode*</mat-label>
+            <mat-select [multiple]="false" formControlName="fido">
+                <mat-option *ngFor="let model of authenticationModel | keyvalue" [value]="model.key">
+                    {{ model.value }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <!-- <button mat-raised-button color="secondary" (click)="startRegistering()">Starte Registrierungsprozess</button> -->
     </ng-container>
 </form>

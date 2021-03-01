@@ -23,7 +23,7 @@ export default class RouteService extends RouteHandler {
 
     const result = await this.authHandler.login(username, password);
     if (!result.result) {
-      this.sendResponse(false, result.message, response, 403, undefined, result.reason);
+      this.sendResponse(false, result.message, response, 403, result.data, result.reason);
       return;
     }
 
@@ -37,7 +37,8 @@ export default class RouteService extends RouteHandler {
 
     const result = await this.authHandler.confirmAdditionalCredentials(username, { ...request.body });
     if (!result.result) {
-      this.sendResponse(false, result.message, response, 403, undefined, result.reason);
+      console.log('result in route-service', result);
+      this.sendResponse(false, result.message, response, 403, result.data, result.reason);
       return;
     }
 
@@ -60,6 +61,10 @@ export default class RouteService extends RouteHandler {
     this.fidoService.onCredential(req.body);
     this.sendResponse(true, 'Successful', res);
   }
+
+  public async fidoLoginRequest(req: express.Request, res: express.Response): Promise<void> {}
+
+  public async fidoLoginConfirm(req: express.Request, res: express.Response): Promise<void> {}
 
   public async whoAmI(request: express.Request, response: express.Response): Promise<void> {
     const cookieAsString = request.cookies[AuthHandler.COOKIE_NAME];

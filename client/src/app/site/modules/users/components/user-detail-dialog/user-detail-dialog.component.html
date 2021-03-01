@@ -9,7 +9,9 @@
         <mat-form-field>
             <mat-label>Authentifizierungsverfahren*</mat-label>
             <mat-select [multiple]="true" formControlName="authenticationTypes">
-                <mat-option *ngFor="let type of authenticationTypes" [value]="type">{{ type }}</mat-option>
+                <mat-option *ngFor="let type of authenticationTypes" [value]="type">
+                    {{ getVerboseAuthenticationType(type) }}
+                </mat-option>
             </mat-select>
             <mat-error>Dieses Feld ist erforderlich.</mat-error>
         </mat-form-field>

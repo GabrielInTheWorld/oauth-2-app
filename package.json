@@ -70,6 +70,7 @@
     "bignumber.js": "^9.0.1",
     "body-parser": "^1.19.0",
     "cbor": "^7.0.2",
+    "cbor-sync": "^1.0.4",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.2.0",
