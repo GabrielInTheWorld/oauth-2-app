@@ -7,6 +7,7 @@ import { BaseServer } from './express/interfaces/base-server';
 import { Factory, Inject } from './application/model-layer/core/modules/decorators';
 import { FidoProviderService } from './application/services/fido-provider-service';
 import { Logger } from './application/services/logger';
+import { Config } from './application/util/config';
 
 export class Application {
   public static readonly PORT: number = parseInt(process.env.PORT || '', 10) || 8000;
@@ -27,6 +28,7 @@ export class Application {
   public start(): Server {
     const server = this.httpServer.getServer().listen(Application.PORT, () => {
       Logger.log(`Server is running on port ${Application.PORT}`);
+      Logger.debug('Is production mode:', Config.isProductionMode());
     });
     this.websocket.initWebsocket({
       httpServer: server

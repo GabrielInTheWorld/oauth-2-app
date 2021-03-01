@@ -1,6 +1,6 @@
 import { SettingsRoutes } from './../modules/settings/settings-routes';
 import cookieParser from 'cookie-parser';
-import express from 'express';
+import express, { request } from 'express';
 import { createServer, Server } from 'http';
 import path from 'path';
 
@@ -10,6 +10,7 @@ import { OAuthRoutes } from '../modules/oauth/oauth-routes';
 import { RouteHandler } from '../../express/interfaces/route-handler';
 import { Routes } from '../routes/Routes';
 import { UsersRoutes } from './../modules/users/users-routes';
+import { Logger } from '../../application/services/logger';
 
 @Constructable(BaseServer)
 export default class AuthenticationServer extends BaseServer {
@@ -35,6 +36,7 @@ export default class AuthenticationServer extends BaseServer {
 
   public constructor(input: { port: number }) {
     super();
+    Logger.warn('Constructing ApplicationServer on port:', input.port);
     this.port = input.port;
     this.createApp();
     this.createServer();
@@ -68,8 +70,8 @@ export default class AuthenticationServer extends BaseServer {
   private initializeRoutes(): void {
     this.routes = new Routes(this.app);
     this.routes.initRoutes();
-    this.oauthRoutes = new OAuthRoutes(this.app);
-    this.oauthRoutes.initRoutes();
+    // this.oauthRoutes = new OAuthRoutes(this.app);
+    // this.oauthRoutes.initRoutes();
     this.userRoutes = new UsersRoutes(this.app);
     this.userRoutes.init();
     this.settingsRoutes = new SettingsRoutes(this.app);
@@ -78,15 +80,16 @@ export default class AuthenticationServer extends BaseServer {
 
   private initClient(): void {
     this.app.use('/', express.static(path.resolve(this.CLIENT_PATH)));
-    this.app.use('/', express.static(path.resolve(RouteHandler.VIEWS_PATH)));
-    this.app.set('views', path.resolve(RouteHandler.VIEWS_PATH));
-    this.app.set('view engine', 'jsx');
-    this.app.engine('jsx', require('express-react-views').createEngine());
+    // this.app.use('/', express.static(path.resolve(RouteHandler.VIEWS_PATH)));
+    // this.app.set('views', path.resolve(RouteHandler.VIEWS_PATH));
+    // this.app.set('view engine', 'jsx');
+    // this.app.engine('jsx', require('express-react-views').createEngine());
   }
 
   private corsFunction(req: express.Request, res: express.Response, next: express.NextFunction): void {
     const origin = req.headers.origin;
     const requestingOrigin = Array.isArray(origin) ? origin.join(' ') : origin || '';
+    Logger.debug('RequestingOrigin:', requestingOrigin);
     if (AuthenticationServer.ALLOWED_ORIGINS.indexOf(requestingOrigin) > -1) {
       res.setHeader('Access-Control-Allow-Origin', requestingOrigin);
     }

@@ -53,7 +53,7 @@ export class Logger {
   }
 
   public static warn(...message: any): void {
-    this.info(LogColor.FgYellow, ...message);
+    this.info(`${LogColor.FgYellow}${LogColor.Bright}`, ...message);
   }
 
   public static debug(...message: any): void {
@@ -61,6 +61,6 @@ export class Logger {
   }
 
   public static error(...message: any): void {
-    this.info(`${LogColor.FgRed} ${LogColor.Bright}`, ...message);
+    this.info(`${LogColor.FgRed}${LogColor.Bright}`, ...message);
   }
 }

@@ -1,7 +1,7 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, execFile } = require('child_process');
 
 let childProcess;
 
@@ -9,25 +9,37 @@ function createMenu() {
   return new Menu();
 }
 
-function createWindow() {
+async function startServer() {
+  childProcess = await execFile();
+}
+
+async function createWindow() {
   // Instantiate express server
-  childProcess = spawn('node', ['build/index.js']);
-  childProcess.on('message', message => console.log('message', message));
-  childProcess.on('exit', message => console.log('Child process exited with code', message));
+  childProcess = spawn('node', ['build/index.js'], { shell: true, detached: true });
+  // childProcess.on('message', message => console.log('message', message));
+  childProcess.stdout.on('data', message => console.log('' + message));
+  childProcess.stderr.on('data', message => console.log('Error:' + message));
+  childProcess.on('exit', message => console.log('Child process exited with code: ', message));
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    // show: false,
     width: 1024,
     height: 768,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false,
+      nodeIntegration: true,
       webSecurity: false
     }
   });
 
   // and load the index.html of the app.
-  mainWindow.loadURL('http://localhost:8000');
+  // await mainWindow.loadURL('http://localhost:8000');
+  setTimeout(() => mainWindow.loadURL('http://localhost:8000'), 10000); // Server needs some time to start.
+  // await mainWindow.loadURL(`file://client/dist/client/index.html`);
+  // mainWindow.once('ready-to-show', () => {
+  //   mainWindow.show();
+  // });
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();

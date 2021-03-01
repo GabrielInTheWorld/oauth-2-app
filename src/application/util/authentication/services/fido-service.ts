@@ -14,6 +14,7 @@ import {
 import { CryptoService } from '../../helper/crypto';
 import crypto from 'crypto';
 import { Base64 } from 'base-coding';
+import { Config } from '../../config';
 
 // interface PublicKeyCredentialCreationOptions {
 //   rp: PublicKeyCredentialRpEntity;
@@ -210,7 +211,7 @@ export class Fido {
   public static async isSignatureValidLib(user: User, credential: any): Promise<boolean> {
     const assertionExpectations: any = {
       challenge: this.bufferToString(this.pendingUsers[user.userId]),
-      origin: 'http://localhost:4200',
+      origin: Config.isProductionMode() ? 'http://localhost:8000' : 'http://localhost:4200',
       factor: 'either',
       publicKey: (user.fido as any).publicKeyPem,
       prevCounter: (user.fido as any).counter,

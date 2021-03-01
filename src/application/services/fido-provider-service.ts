@@ -12,6 +12,7 @@ import { UserService } from '../model-layer/user/user-service';
 import { Random } from '../util/helper';
 import { Logger } from './logger';
 import { Fido } from '../util/authentication/services/fido-service';
+import { Config } from '../util/config';
 
 enum FidoAuthenticationStep {
   REQUEST = 'request',
@@ -290,7 +291,7 @@ export class FidoProviderService {
 
     const expectedResult: any = {
       challenge: this.pendingRegister[userId],
-      origin: 'http://localhost:4200',
+      origin: Config.isProductionMode() ? 'http://localhost:8000' : 'http://localhost:4200',
       factor: 'either'
     };
     const result = await this.f2l.attestationResult(receivedResult, expectedResult);
